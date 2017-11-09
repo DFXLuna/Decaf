@@ -1,0 +1,317 @@
+%{
+    #include"node.h"
+    #include<iostream>
+    #include<sstream>
+    #include<string>
+    #include"program5.tab.h"
+    using namespace std;
+    int col = 1;
+    string currText;
+    int currLine = 0;
+    #define YY_USER_ACTION currText = yytext; currLine = yylineno;
+
+    void yyerror(const char* s) {
+        //cout << s << endl; 
+    }
+
+    // Lexical error handler
+    void printLexicalError(string e, int column, int line){
+        cout << line << ":" << column << ">> lexical error on ' " 
+              << e << " '" << endl; 
+    }
+
+    // semantic error handler
+    void printSemanticError(string e, int column, int line){
+        cout << " is causing a semantic error at " << line << ":" << column << endl;
+    }
+
+    // Used to copy yytext to bison
+    string getyytext(){
+        cout << currText;
+        return string(currText);
+    }
+
+    int getLine(){
+        return currLine;
+    }
+
+    int getCol(){
+        return col;
+    }
+%}
+
+%option outfile ="program5_lex.cpp"
+%option noyywrap
+%option yylineno
+
+%x ERROR
+%x MCOMMENT
+
+WS   [" ""\t"]+
+WORD [_a-zA-Z][_a-zA-Z0-9]*
+ONEOP   [\[\]\{\}<>!+\-*/%;,()=.]
+TWOOP   "!="|"=="|"<="|">="|"&&"|"||"
+OP      {ONEOP}|{TWOOP}
+COMMENT "//".*
+
+%%
+
+
+    /* Keywords */
+"this" {
+    col += yyleng;
+    return THIS;
+}
+
+"null" {
+    col += yyleng;
+    return NULLOP;
+}
+
+"read" {
+    col += yyleng;
+    return READ;
+}
+
+"int" {
+    col += yyleng;
+    return INT;
+}
+
+"new" {
+    col += yyleng;
+    return NEW;
+}
+
+"print" {
+    col += yyleng;
+    return PRINT;
+}
+
+"while" {
+    col += yyleng;
+    return WHILE;
+}
+
+"return" {
+    col += yyleng;
+    return RETURN;
+}
+
+"if" {
+    col += yyleng;
+    return IF;
+}
+
+"else" {
+    col += yyleng;
+    return ELSE;
+}
+
+"void" {
+    col += yyleng;
+    return VOID;
+}
+
+"class" {
+    col += yyleng;
+    return CLASS;
+}
+
+    /* Comment handler */
+{COMMENT} {
+    col += yyleng;
+}
+
+"/*" {
+    BEGIN(MCOMMENT);
+}
+
+<MCOMMENT>[^*\n]* { 
+    /* Removes anything not a '*' */
+    col += yyleng;
+}
+
+<MCOMMENT>"*"+[^*/\n]* {
+    /* Removes '*'s no followed by '/'s */
+    col += yyleng;
+}
+
+<MCOMMENT>"\n" {
+    col = 1;
+}
+
+<MCOMMENT>"*"+"/" {
+    BEGIN(INITIAL);
+    col += yyleng;
+}
+
+
+    /* misc */
+
+\n {
+    col = 1;
+}
+
+
+{WS} {
+    col += yyleng;
+}
+
+[0-9]+ {
+    col += yyleng;
+    yylval.ttype = new NumNode(atoi(yytext));
+    return NUM;
+}
+
+{WORD} {
+    //cout << "Matched a word" << endl;
+    col += yyleng;
+    yylval.ttype = new IdNode(yytext);
+    return ID;
+}
+
+\. {
+    col += yyleng;
+    return DOT;
+}
+\, {
+    col += yyleng;
+    return COMMA;
+}
+\; {
+    col += yyleng;
+    return SEMICOLON;
+}
+
+\= {
+    col += yyleng;
+    return EQ;
+}
+
+    /* Braces */
+\( {
+    col += yyleng;
+    return LPAREN;
+}
+
+\) {
+    col += yyleng;
+    return RPAREN;
+}
+
+\[ {
+    col += yyleng;
+    return LBRACE;
+}
+
+\] {
+    col += yyleng;
+    return RBRACE;
+}
+
+\} {
+    col += yyleng;
+    return RSBRACE;
+}
+
+\{ {
+    col += yyleng;
+    return LSBRACE;
+}
+
+    /* Sum/Unary Operators */    
+\+ {
+    col += yyleng;
+    return PLUS;
+}
+
+\- {
+    col += yyleng;
+    return MINUS;
+}
+
+\! {
+    col += yyleng;
+    return EXCL;
+}
+
+"||" {
+    col += yyleng;
+    return OR;
+}
+
+    /* Relation Operators */
+
+"==" {
+    col += yyleng;
+    return EQ;
+}
+"!=" {
+    col += yyleng;
+    return NEQ;
+}
+"<=" {
+    col += yyleng;
+    return LEQ;
+}
+">=" {
+    col += yyleng;
+    return GEQ;
+}
+"<" {
+    col += yyleng;
+    return LESS;
+}
+">" {
+    col += yyleng;
+    return GREATER;
+}
+
+    /* Product Operators */
+\* {
+    col += yyleng;
+    return TIMES;
+}
+\/ {
+    col +=  yyleng;
+    return DIV;
+}
+
+\% {
+    col += yyleng;
+    return MOD;
+}
+
+"&&" {
+    col += yyleng;
+    return AND;
+}
+    /* Error Handler */
+. {
+    yyless(0);
+    BEGIN(ERROR);
+}
+
+<ERROR>.{OP} {
+    /* One character error with op, send op back to parse */
+    string s = yytext;
+    printLexicalError(s.substr(0, 1), col, yylineno);
+    yyless(1);
+    col += yyleng;
+    BEGIN(INITIAL);
+}
+
+<ERROR>.(^{OP}{WS})+ {
+    printLexicalError(yytext, col, yylineno);
+    col += yyleng;
+    BEGIN(INITIAL);
+}
+
+<ERROR>. {
+    printLexicalError(yytext, col, yylineno);
+    col += yyleng;
+    BEGIN(INITIAL);
+}
+
+%%
