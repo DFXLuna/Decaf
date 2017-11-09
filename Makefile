@@ -9,8 +9,8 @@ LEXFLAGS=--warn
 
 .PHONY: clean
 
-program5: program5.cpp program5_lex.cpp program5.tab.c program5.tab.h node.h node.cpp
-	${CXX} ${CXXFLAGS} program5.cpp program5.tab.c program5_lex.cpp node.cpp -o program5
+program5: program5.cpp program5_lex.cpp program5.tab.c program5.tab.h node.h node.cpp tables.h tables.cpp
+	${CXX} ${CXXFLAGS} program5.cpp program5.tab.c program5_lex.cpp node.cpp tables.cpp -o program5
 
 program5.tab.c: program5.y node.h
 	${YACC} ${YFLAGS} program5.y
