@@ -1,3 +1,5 @@
+- Fix typegen
 - Implement "forward declaration" in typedecl/tablemanager
+- Implement print and dump methods
 - Add method support
 - Enable error checking in Bison
