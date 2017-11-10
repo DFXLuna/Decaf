@@ -1,2 +1,3 @@
--Fill in typeinfo
--Enable error checking in Bison
+- Implement "forward declaration" in typedecl/tablemanager
+- Add method support
+- Enable error checking in Bison

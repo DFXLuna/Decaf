@@ -1,6 +1,11 @@
-// This holds everything needed for symbol tables: tablemanaber, table and typeinfo
+#include<string>
+using std::string;
+
+// It might be worth nesting the classes
+
 class Table;
-class TypeInfo;
+class TypeInst;
+class TypeDecl;
 
 
 class TableManager{
@@ -9,26 +14,53 @@ public:
     ~TableManager();
     bool addTable();
     void exitScope();
-    bool addEntry( /* STUFF NEEDED FOR TYPEINFO CREATION*/ );
+    bool addEntry( string type, string name );
 
-    // Takes an empty typeinfo reference
+    // Takes an empty TypeInst reference
     // Populates it and returns true if found or false if not
-    bool tryLookup( TypeInfo& /* AND STUFF FOR FINDING THE TYPE */ );
+    bool tryLookup( string name, TypeDecl* ret );
+
+    // These control the global type table
+    bool createTypeTable();
+    bool addType();
 private:
-    Table* tables;
+    Table* typeTable;
+    Table* declTables;
     Table* currTable;
 };
 
 class Table{
 public:
     ~Table();
-    bool tryLookup( TypeInfo& /* AND STUFF FOR FINDING THE TYPE */ );
-    bool addEntry(/* STUFF NEEDED FOR TYPEINFO CREATION*/);
+    bool tryLookup( string name, TypeDecl* ret );
+    bool addEntry(/* STUFF NEEDED FOR TypeInst CREATION*/);
 private:
     Table* parent;
 };
 
-class TypeInfo{
-    TypeInfo();
-    ~TypeInfo();
+// This covers instances of a type
+class TypeInst {
+public:
+    TypeInst( TypeDecl* type, string name );
+private:
+    // Var name
+    string name;
+    // Pointer to entry in typetable
+    TypeDecl* type;
 };
+
+// This covers the declaration of a type
+// Allows implicit forward declaration so that all types will be in type table
+// before they are actually processed.
+class TypeDecl {
+    public:
+    TypeDecl( string name, int width = 0, forwardDecl = true );
+
+    string getName();
+    int getWidth();
+    bool isForward();
+private:
+    string name;
+    int width;
+    bool forwardDecl;
+}

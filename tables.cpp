@@ -5,18 +5,33 @@ TableManager::~TableManager(){}
 bool TableManager::addTable(){
     return false;
 }
+
 void TableManager::exitScope(){}
 bool TableManager::addEntry(){
-    return false;
-}
-bool TableManager::tryLookup( TypeInfo& in ){
+    // TypeDecl* ret = 0;
+    // if(!tm->tryLookup(type, ret)){
+    //     return false;
+    // }
+    // tm->addEntry()
     return false;
 }
 
+bool TableManager::tryLookup( TypeInst& in ){
+    return false;
+}
+
+
+bool createTypeTable(){
+    return false;
+}
+
+bool addType(){
+    return false;
+}
 /////////////////////////////////////////
 
 Table::~Table(){}
-bool Table::tryLookup( TypeInfo& in ){
+bool Table::tryLookup( TypeInst& in ){
     return false;
 }
 bool Table::addEntry(){
@@ -24,5 +39,26 @@ bool Table::addEntry(){
 }
 
 /////////////////////////////////////////
-TypeInfo::TypeInfo(){}
-TypeInfo::~TypeInfo(){}
+
+TypeInst::TypeInst( string name, TypeDecl* type ){
+    this->name = name;
+    this->type = type;
+}
+
+TypeDecl::TypeDecl( string name, int width, bool forwardDecl ){
+    this->name = name;
+    this->width = width;
+    this->forwardDecl = forwardDecl;
+}
+
+string TypeDecl::getName(){
+    return name;
+}
+
+int TypeDecl::getWidth(){
+    return width;
+}
+
+bool TypeDecl::isForward(){
+    return forwardDecl;
+}
