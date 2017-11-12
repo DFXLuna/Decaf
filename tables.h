@@ -4,50 +4,69 @@ using std::string;
 using std::map;
 #include<vector>
 using std::vector;
-
-// It might be worth nesting the classes
+#include<iostream>
+using std::cout;
+using std::endl;
 
 class Table;
 class TypeInst;
 class TypeDecl;
-class TypeGen;
+class MethDecl;
 
+// Most of the arguments should probably be by reference to prevent
+// unnecessary copying
 
 class TableManager{
 public:
     TableManager();
     ~TableManager();
-    bool addTable();
+    void enterScope();
     void exitScope();
-    bool addEntry( string type, string name );
 
-    // Takes an empty TypeInst reference
-    // Populates it and returns true if found or false if not
-    bool tryLookup( string name, TypeDecl* ret );
+    bool addTypeInst( string type, string name );
+    bool addMethDecl( string name, vector<string> argTypes, 
+                      string returnType );
+
+
+    // If successful, result points to an entry in the global type table and
+    // returns true
+    bool tryLookup( string name, TypeDecl* result );
+    
+    // If successful, result points to an entry in the type instance tree  and
+    // returns true
+    bool tryLookup( string name, TypeInst* result );
+    
+    // If successful, result points to an entry in the method declaration tree
+    // and returns true
+    bool tryLookup( string name, MethDecl* result );
 
     // These control the global type table
     bool createTypeTable();
     bool addType();
 private:
-    Table* typeTable;
-    Table* declTables;
+    Table* globalTypeTable;
     Table* currTable;
 };
 
 class Table{
 public:
     Table( Table* parent );
-    ~Table();
     // If successful, result points to an entry in the global type table and
     // returns true
     bool tryLookup( string name, TypeDecl* result );
+    // If successful, result points to an entry in the type instance tree  and
+    // returns true
+    bool tryLookup( string name, TypeInst* result );
     // If successful, result points to an entry in the tree of method
     // declarations and returns true
     bool tryLookup( string name, MethDecl* result );
     // Add variable to typetable
-    bool tryAddEntry( string varName, string typeName );
+    bool tryAddEntry( string varName, TypeDecl* type );
     // Add method declaration to type table
-    bool tryAddEntry( string methName, vector<string> argTypes );
+    bool tryAddEntry( string methName, vector<TypeDecl*> argTypes,
+                      TypeDecl* returnType );
+    
+    Table* getParent();
 private:
     Table* parent;
     map<string, TypeInst> typeTable;
@@ -57,7 +76,7 @@ private:
 // This covers instances of a type
 class TypeInst {
 public:
-    TypeInst( TypeDecl* type, string name );
+    TypeInst( string name, TypeDecl* type );
 private:
     // Var name
     string name;
@@ -69,20 +88,18 @@ private:
 // Allows implicit forward declaration so that all types will be in type table
 // before they are actually processed.
 class TypeDecl {
-    public:
-    TypeDecl( string name, int width = 0, forwardDecl = true );
+public:
+    TypeDecl( string name, int width = 0, bool forwardDecl = true );
 
     string getName();
     int getWidth();
     bool isForward();
-    void print(){
-        cout << name;
-    }
+    void print();
 private:
     string name;
     int width;
     bool forwardDecl;
-}
+};
 
 // This covers the declaration of a method,
 // methods get their own separate table, these also allow forward declarations
@@ -90,25 +107,13 @@ private:
 class MethDecl {
 public:
     // vector passed by referenced because I want to avoid making two copies
-    MethDecl( string name, vector<TypeDecl*>& argTypes, string retType, forwardDecl = true );
+    MethDecl( string name, vector<TypeDecl*>& argTypes, string retType, bool forwardDecl = true );
     bool isForward();
     vector<TypeDecl*> getArgTypes();
-    void print(){
-        cout << name << ": ";
-        if(argTypes.size() == 0){
-            cout << "() -> "
-        }
-        else{
-            for(int i = 0; i < argTypes.size(); i++){
-                argTypes[i]->print();
-                cout << " -> ";
-            }
-        }
-        cout << retType;
-    }
+    void print();
 private:
     string name;
     vector<TypeDecl*> argTypes;
     string retType;
     bool forwardDecl;
-}
+};
