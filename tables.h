@@ -9,6 +9,7 @@ using std::cout;
 using std::endl;
 
 class Table;
+class GlobalTypeTable;
 class TypeInst;
 class TypeDecl;
 class MethDecl;
@@ -41,10 +42,14 @@ public:
     bool tryLookup( string name, MethDecl* result );
 
     // These control the global type table
-    bool createTypeTable();
-    bool addType();
+    bool createGlobalTypeTable();
+    // Declare a type without a width
+    bool forwardEntryGlobalTypeTable( string name, TypeDecl* t );
+    // Set width of forward declared entry
+    bool setWidthGlobalTypeTable( string name, int width );
+
 private:
-    Table* globalTypeTable;
+    GlobalTypeTable* globalTypeTable;
     Table* currTable;
 };
 
@@ -73,6 +78,14 @@ private:
     map<string, MethDecl> methTable;
 };
 
+class GlobalTypeTable {
+public:
+    bool tryAddEntry( string typeName, TypeDecl* t );
+    bool tryLookup( string typeName, TypeDecl* result );
+private:
+    map<string, TypeDecl*> types;
+};
+
 // This covers instances of a type
 class TypeInst {
 public:
@@ -93,6 +106,7 @@ public:
 
     string getName();
     int getWidth();
+    void setWidth( int );
     bool isForward();
     void print();
 private:

@@ -1,6 +1,11 @@
 #include "tables.h"
 
-TableManager::TableManager(){}
+TableManager::TableManager(){
+    globalTypeTable = 0;
+    currTable = 0;
+    createGlobalTypeTable();
+}
+
 TableManager::~TableManager(){}
 void TableManager::enterScope(){
     Table* newScope = new Table( currTable );
@@ -54,27 +59,66 @@ string returnType ){
 }
 
 bool TableManager::tryLookup( string name, TypeDecl* result ){
+    if(globalTypeTable->tryLookup(name, result)){
+        return true;
+    }
     return false;
 }
 
 bool TableManager::tryLookup( string name, MethDecl* result ){
+    if(currTable != 0){
+        if(currTable->tryLookup(name, result)){
+            return true;
+        }
+    }
     return false;
 }
 
 bool TableManager::tryLookup( string name, TypeInst* result ){
+    if(currTable != 0){
+        if(currTable->tryLookup(name, result)){
+            return true;
+        }
+    }
     return false;
 }
 
 
-bool createTypeTable(){
+bool TableManager::createGlobalTypeTable(){
+    // Creates a table with int as the only entry
+    if( globalTypeTable == 0 ){
+        globalTypeTable = new GlobalTypeTable();
+        return true;
+    }
     return false;
 }
 
-bool addType(){
+bool TableManager::forwardEntryGlobalTypeTable( string name, TypeDecl* t ){
+    if(globalTypeTable->tryAddEntry(name, t)){
+        return true;
+    }
     return false;
+}
+
+bool TableManager::setWidthGlobalTypeTable( string name, int width ){
+    TypeDecl* result = 0;
+    if(globalTypeTable->tryLookup(name, result)){
+        result->setWidth(width);
+        return true;
+    }
+    return false;    
 }
 /////////////////////////////////////////
 
+bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl* result ){
+    return false;
+}
+
+bool GlobalTypeTable::tryLookup( string typeName, TypeDecl* result ){
+    return false;
+}
+
+/////////////////////////////////////////
 Table::Table( Table* parent ){
 
 }
@@ -84,6 +128,10 @@ bool Table::tryLookup( string name, TypeDecl* result ){
 }
 
 bool Table::tryLookup( string name, MethDecl* result ){
+    return false;
+}
+
+bool Table::tryLookup( string name, TypeInst* result){
     return false;
 }
 
@@ -115,6 +163,10 @@ TypeDecl::TypeDecl( string name, int width, bool forwardDecl ){
 
 string TypeDecl::getName(){
     return name;
+}
+
+void TypeDecl::setWidth( int width ){
+    this->width = width;
 }
 
 int TypeDecl::getWidth(){

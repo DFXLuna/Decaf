@@ -2,5 +2,5 @@
 - Implement method for forward declarations of methods
 and resolution of those declarations in tablemanager
 - Implement print and dump methods
-- Add method support
+- Implement Memory management
 - Enable error checking in Bison
