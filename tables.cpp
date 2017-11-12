@@ -62,3 +62,20 @@ int TypeDecl::getWidth(){
 bool TypeDecl::isForward(){
     return forwardDecl;
 }
+
+/////////////////////////////////////////
+
+MethDecl::MethDecl( string name, vector<TypeDecl*>& argTypes, forwardDecl ){
+    this->name = name;
+    this->argTypes = argTypes
+    this->forwardDecl = forwardDecl;
+    this->retType = retType;
+}
+
+bool MethDecl::isForward(){
+    return forwardDecl;
+}
+
+vector<TypeDecl*> MethDecl::getArgTypes(){
+    return argTypes;
+}

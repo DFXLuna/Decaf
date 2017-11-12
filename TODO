@@ -1,5 +1,6 @@
-- Fix typegen
-- Implement "forward declaration" in typedecl/tablemanager
+- fix ret type in methdecl from string to typedecl <- with printing
+- Implement method for forward declarations of methods
+and resolution of those declarations in tablemanager
 - Implement print and dump methods
 - Add method support
 - Enable error checking in Bison
