@@ -1,3 +1,8 @@
+- Implement Table methods
+- Implement GTT Methods
+- Implement Type Inst/Decl MethDecl methods
+- Somehow coerece the tree into typechecking itself
+
 - fix ret type in methdecl from string to typedecl <- with printing
 - Implement method for forward declarations of methods
 and resolution of those declarations in tablemanager
