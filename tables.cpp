@@ -7,6 +7,7 @@ TableManager::TableManager(){
 }
 
 TableManager::~TableManager(){}
+
 void TableManager::enterScope(){
     Table* newScope = new Table( currTable );
     currTable = newScope;
@@ -23,11 +24,11 @@ bool TableManager::addTypeInst( string type, string name ){
     TypeDecl* t = 0;
     if(tryLookup(type, t)){
         // Let table handle adding it
-        if(currTable->tryAddEntry(name, t)){
+        TypeInst ti( name, t );
+        if(currTable->tryAddEntry(name, ti)){
             return true;
         }
     }
-
     return false;
 }
 
@@ -134,23 +135,39 @@ bool GlobalTypeTable::tryLookup( string typeName, TypeDecl*& result ){
 
 /////////////////////////////////////////
 Table::Table( Table* parent ){
-
+    this->parent = parent;
 }
 
-bool Table::tryLookup( string name, TypeDecl* result ){
+bool Table::tryLookup( string name, MethDecl*& result ){
+    // Check local table
+    // map<string, MethDecl>::iterator it;
+    // if( (it = methTable.find(name)) != methTable.end() ){
+    //     result = &(it->second);
+    //     return true;
+    // }
+    // Check parents tables:
+
     return false;
 }
 
-bool Table::tryLookup( string name, MethDecl* result ){
+bool Table::tryLookup( string name, TypeInst*& result){
+    map<string, TypeInst>::iterator it;
+    if( (it = typeTable.find(name)) != typeTable.end() ){
+        result = &(it->second);
+        return true;
+    }
+    // CHECK PARENT TABLE
+
     return false;
 }
 
-bool Table::tryLookup( string name, TypeInst* result){
-    return false;
-}
-
-bool Table::tryAddEntry( string varName, TypeDecl* type ){
-    return false;
+bool Table::tryAddEntry( string varName, TypeInst t ){
+    TypeInst* temp = 0;
+    if(tryLookup(varName, temp)){
+        return false;
+    }
+    typeTable[varName] = t;
+    return true;
 }
 
 bool Table::tryAddEntry( string methName, vector<TypeDecl*> argTypes,
@@ -163,6 +180,10 @@ Table* Table::getParent(){
 }
 
 /////////////////////////////////////////
+
+TypeInst::TypeInst(){
+    type = 0;
+}
 
 TypeInst::TypeInst( string name, TypeDecl* type ){
     this->name = name;

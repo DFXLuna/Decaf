@@ -65,5 +65,17 @@ int main(){
         cout << "FLT test passed" << endl;
     }
 
+    ///////////////////////////////////////////////////
+    // General Table tests
+    // Basic Insert Test
+    t.enterScope();
+    if(t.addTypeInst("TypeA", "VarA")){
+        cout << "BIT Test passed" << endl;
+    }
+    else{
+        cout << "BIT Test failed" << endl;
+    }
+
+
     return 0;
 }

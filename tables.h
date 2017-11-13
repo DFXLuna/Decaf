@@ -56,17 +56,14 @@ private:
 class Table{
 public:
     Table( Table* parent );
-    // If successful, result points to an entry in the global type table and
-    // returns true
-    bool tryLookup( string name, TypeDecl* result );
     // If successful, result points to an entry in the type instance tree  and
     // returns true
-    bool tryLookup( string name, TypeInst* result );
+    bool tryLookup( string name, TypeInst*& result );
     // If successful, result points to an entry in the tree of method
     // declarations and returns true
-    bool tryLookup( string name, MethDecl* result );
+    bool tryLookup( string name, MethDecl*& result );
     // Add variable to typetable
-    bool tryAddEntry( string varName, TypeDecl* type );
+    bool tryAddEntry( string varName, TypeInst type );
     // Add method declaration to type table
     bool tryAddEntry( string methName, vector<TypeDecl*> argTypes,
                       TypeDecl* returnType );
@@ -89,6 +86,9 @@ private:
 // This covers instances of a type
 class TypeInst {
 public:
+    // For the map, which insists on inserting an empty element
+    // then populating it.
+    TypeInst();
     TypeInst( string name, TypeDecl* type );
 private:
     // Var name
