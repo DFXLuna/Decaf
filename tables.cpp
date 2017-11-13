@@ -58,7 +58,7 @@ string returnType ){
     return false;
 }
 
-bool TableManager::tryLookup( string name, TypeDecl* result ){
+bool TableManager::tryLookup( string name, TypeDecl*& result ){
     if(globalTypeTable->tryLookup(name, result)){
         return true;
     }
@@ -93,7 +93,7 @@ bool TableManager::createGlobalTypeTable(){
     return false;
 }
 
-bool TableManager::forwardEntryGlobalTypeTable( string name, TypeDecl* t ){
+bool TableManager::forwardEntryGlobalTypeTable( string name, TypeDecl*& t ){
     if(globalTypeTable->tryAddEntry(name, t)){
         return true;
     }
@@ -110,11 +110,25 @@ bool TableManager::setWidthGlobalTypeTable( string name, int width ){
 }
 /////////////////////////////////////////
 
-bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl* result ){
-    return false;
+bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl* t ){
+    // Can be used later for more verbose errors
+    TypeDecl* temp = 0;
+    if(tryLookup(typeName, temp)){
+        return false;
+    }
+
+    types[typeName] = t;
+    return true;
 }
 
-bool GlobalTypeTable::tryLookup( string typeName, TypeDecl* result ){
+bool GlobalTypeTable::tryLookup( string typeName, TypeDecl*& result ){
+    // Newer c++ standards may have a lot of garbage in them but at least
+    // They give you ways to deal with this trash.
+    map<string, TypeDecl*>::iterator it;
+    if( (it = types.find(typeName)) != types.end() ){
+        result = it->second;
+        return true;
+    }
     return false;
 }
 

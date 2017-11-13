@@ -1,4 +1,4 @@
-- Types can be redefined in the scope they are declared in. so
+- Variables can be redefined in the scope they are declared in. so
 int x; A x; is valid. The most recent definition of a variable is the used
 declaration.
 

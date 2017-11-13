@@ -31,7 +31,7 @@ public:
 
     // If successful, result points to an entry in the global type table and
     // returns true
-    bool tryLookup( string name, TypeDecl* result );
+    bool tryLookup( string name, TypeDecl*& result );
     
     // If successful, result points to an entry in the type instance tree  and
     // returns true
@@ -42,13 +42,13 @@ public:
     bool tryLookup( string name, MethDecl* result );
 
     // These control the global type table
-    bool createGlobalTypeTable();
     // Declare a type without a width
-    bool forwardEntryGlobalTypeTable( string name, TypeDecl* t );
+    bool forwardEntryGlobalTypeTable( string name, TypeDecl*& t );
     // Set width of forward declared entry
     bool setWidthGlobalTypeTable( string name, int width );
 
 private:
+    bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
     Table* currTable;
 };
@@ -81,7 +81,7 @@ private:
 class GlobalTypeTable {
 public:
     bool tryAddEntry( string typeName, TypeDecl* t );
-    bool tryLookup( string typeName, TypeDecl* result );
+    bool tryLookup( string typeName, TypeDecl*& result );
 private:
     map<string, TypeDecl*> types;
 };

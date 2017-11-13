@@ -9,3 +9,7 @@ and resolution of those declarations in tablemanager
 - Implement print and dump methods
 - Implement Memory management
 - Enable error checking in Bison
+
+
+Victory lap:
+- Implement error type in tablemanager for more verbose failure
