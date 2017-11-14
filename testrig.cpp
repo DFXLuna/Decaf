@@ -16,7 +16,7 @@ int main(){
         cout << "FET test passed" << endl;
     }
     else{
-        cout << "FET test failed" << endl;
+        cout << "FET test failed---" << endl;
     }
 
     // Set width test
@@ -25,7 +25,7 @@ int main(){
         cout << "SWT test passed" << endl;
     }
     else{
-        cout << "SWT test failed" << endl;
+        cout << "SWT test failed---" << endl;
     }
 
     // Add existing member test
@@ -34,7 +34,7 @@ int main(){
     t.forwardEntryGlobalTypeTable( "TypeA", ty2 );
     t.tryLookup( "TypeA", typea );
     if(typea->getName() != "TypeA"){
-        cout << "EMT test failed" << endl;
+        cout << "EMT test failed---" << endl;
     }
     else{
         cout << "EMT test passed" << endl;
@@ -44,21 +44,21 @@ int main(){
     // Failed lookup test
     typea = 0;
     if(t.tryLookup("TypeB", typea) || typea != 0){
-        cout << "FLT test failed" << endl;
+        cout << "FLT test failed---" << endl;
     }
     else{
         cout << "FLT test passed" << endl;
     }
 
     ///////////////////////////////////////////////////
-    // General Table tests
+    // TypeInst tests
     // Basic Insert test
     t.enterScope();
     if(t.addTypeInst("TypeA", "VarA")){
         cout << "BIT test passed" << endl;
     }
     else{
-        cout << "BIT test failed" << endl;
+        cout << "BIT test failed---" << endl;
     }
 
     // Basic Lookup test(No Parent)
@@ -67,7 +67,7 @@ int main(){
         cout << "BLT test passed" << endl;
     }
     else{
-        cout << "BLT test failed" << endl;
+        cout << "BLT test failed---" << endl;
     }
 
     // Parent Lookup test
@@ -77,7 +77,7 @@ int main(){
         cout << "PLT test passed" << endl;
     }
     else{
-        cout << "PLT test failed" << endl;
+        cout << "PLT test failed---" << endl;
     }
 
     //2 Parents
@@ -87,7 +87,7 @@ int main(){
         cout << "2LT test passed" << endl;
     }
     else{
-        cout << "2LT test failed" << endl;
+        cout << "2LT test failed---" << endl;
     }
 
     // var in child test
@@ -98,8 +98,62 @@ int main(){
         cout << "VIC test passed" << endl;
     }
     else{
-        cout << "VIC test failed" << endl;
+        cout << "VIC test failed---" << endl;
+    }
+    t.exitScope();
+
+    ///////////////////////////////////////////////////
+    // MethDecl Tests
+
+    // Basic Method test
+    vector<string> methaArgs;
+    if( t.addMethDecl("MethA", methaArgs, "TypeA") ){
+        cout << "BMT test passed" << endl;
+    }
+    else{
+        cout << "BMT test failed---" << endl;
     }
 
+    // Method Lookup test
+    MethDecl* metha = 0;
+    if( t.tryLookup("MethA", metha) && metha != 0 ){
+        cout << "MLT test passed" << endl;
+    }
+    else{
+        cout << "MLT test failed---" << endl;
+    }
+
+    // Parent Table Lookup test
+    t.enterScope();
+    metha = 0;
+    if( t.tryLookup("MethA", metha) && metha != 0 ){
+        cout << "PTL test passed" << endl;
+    }
+    else{
+        cout << "PTL test failed---" << endl;
+    }
+
+    // Failed Child Lookup test
+    MethDecl* methb = 0;
+    t.addMethDecl("MethB", methaArgs, "TypeA");
+    t.exitScope();
+    if(!t.tryLookup("MethB", methb) && methb == 0){
+        cout << "FCL test passed" << endl;
+    }
+    else{
+        cout << "FCL test failed---" << endl;
+    }
+
+    // Method args lookup test
+    methb = 0;
+    methaArgs.push_back("TypeA");
+    t.addMethDecl("MethB", methaArgs, "TypeA");
+    if(t.tryLookup("MethB", methb) && methb != 0 && 
+    methb->getArgTypes().size() == 1){
+        cout << "MAL test passed" << endl;
+    }
+    else{
+        cout << "MAL test failed---" << endl;
+    }
     return 0;
 }

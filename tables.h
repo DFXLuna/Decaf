@@ -108,6 +108,7 @@ public:
 
     string getName();
     int getWidth();
+    void resolveForward();
     void setWidth( int );
     bool isForward();
     void print();
@@ -127,6 +128,7 @@ public:
     MethDecl( string name, vector<TypeDecl*> argTypes,
               TypeDecl* retType, bool forwardDecl = true );
     bool isForward();
+    void resolveForward();
     vector<TypeDecl*> getArgTypes();
     void print();
     bool operator==(const MethDecl& rhs) const;

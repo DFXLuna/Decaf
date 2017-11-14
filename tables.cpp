@@ -52,7 +52,7 @@ string returnType ){
     }
 
     // Let table handle adding
-    if(currTable->tryAddEntry(name, args, ret)){
+    if(currTable->tryAddEntry(name, args, ret, false)){
         return true;
     }
 
@@ -140,12 +140,15 @@ Table::Table( Table* parent ){
 
 bool Table::tryLookup( string name, MethDecl*& result ){
     // Check local table
-    // map<string, MethDecl>::iterator it;
-    // if( (it = methTable.find(name)) != methTable.end() ){
-    //     result = &(it->second);
-    //     return true;
-    // }
-    // Check parents tables:
+    map<string, MethDecl>::iterator it;
+    if( (it = methTable.find(name)) != methTable.end() ){
+        result = &(it->second);
+        return true;
+    }
+    // Check parents tables
+    if(parent && parent->tryLookup(name, result)){
+        return true;
+    }
 
     return false;
 }
@@ -156,7 +159,7 @@ bool Table::tryLookup( string name, TypeInst*& result){
         result = &(it->second);
         return true;
     }
-    // Move up tree checking larger scope
+    // check parent tables
     if(parent && parent->tryLookup(name, result)){
         return true;
     }
@@ -182,7 +185,8 @@ TypeDecl* returnType, bool forwardDecl ){
     }
     else{
         if(lookup->isForward() && *lookup == toInsert){
-            //RESOLVE FD
+            // Resolve forwardDecl
+            lookup->resolveForward();
             return true;
         }
         else{
@@ -242,6 +246,10 @@ bool TypeDecl::isForward(){
     return forwardDecl;
 }
 
+void TypeDecl::resolveForward(){
+    forwardDecl = false;
+}
+
 void TypeDecl::print(){
      cout << name;
 }
@@ -259,6 +267,10 @@ TypeDecl* retType, bool forwardDecl ){
     this->argTypes = argTypes;
     this->forwardDecl = forwardDecl;
     this->retType = retType;
+}
+
+void MethDecl::resolveForward(){
+    forwardDecl = false;
 }
 
 bool MethDecl::isForward(){
@@ -280,11 +292,11 @@ void MethDecl::print(){
             cout << " -> ";
         }
     }
-    cout << retType;
+    retType->print();
 }
 
 // this is used for the purpose of setting forwardDecl so comparing them
-// Doesn't make sense
+// doesn't make sense
 bool MethDecl::operator==(const MethDecl& rhs) const{
     if(this->name == rhs.name &&
        this->argTypes == rhs.argTypes &&
