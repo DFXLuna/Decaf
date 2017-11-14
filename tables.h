@@ -35,11 +35,11 @@ public:
     
     // If successful, result points to an entry in the type instance tree  and
     // returns true
-    bool tryLookup( string name, TypeInst* result );
+    bool tryLookup( string name, TypeInst*& result );
     
     // If successful, result points to an entry in the method declaration tree
     // and returns true
-    bool tryLookup( string name, MethDecl* result );
+    bool tryLookup( string name, MethDecl*& result );
 
     // These control the global type table
     // Declare a type without a width
@@ -66,7 +66,7 @@ public:
     bool tryAddEntry( string varName, TypeInst type );
     // Add method declaration to type table
     bool tryAddEntry( string methName, vector<TypeDecl*> argTypes,
-                      TypeDecl* returnType );
+                      TypeDecl* returnType, bool forwardDecl = true );
     
     Table* getParent();
 private:
@@ -90,6 +90,8 @@ public:
     // then populating it.
     TypeInst();
     TypeInst( string name, TypeDecl* type );
+    void print();
+    string getName();
 private:
     // Var name
     string name;
@@ -120,14 +122,17 @@ private:
 // for type checking, meth instances don't make sense
 class MethDecl {
 public:
-    // vector passed by referenced because I want to avoid making two copies
-    MethDecl( string name, vector<TypeDecl*>& argTypes, string retType, bool forwardDecl = true );
+    // For map
+    MethDecl();
+    MethDecl( string name, vector<TypeDecl*> argTypes,
+              TypeDecl* retType, bool forwardDecl = true );
     bool isForward();
     vector<TypeDecl*> getArgTypes();
     void print();
+    bool operator==(const MethDecl& rhs) const;
 private:
     string name;
     vector<TypeDecl*> argTypes;
-    string retType;
+    TypeDecl* retType;
     bool forwardDecl;
 };

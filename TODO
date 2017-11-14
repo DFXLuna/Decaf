@@ -1,4 +1,8 @@
+Test Methdecl insertion
+
 - Implement Table methods
+    - add resolution methods for forward declarations meth and decl
+
 - Implement Type Inst/Decl MethDecl methods
 - Get table to add int and possibly void type to GTT
 - Somehow coerece the tree into typechecking itself

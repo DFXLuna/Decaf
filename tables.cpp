@@ -66,7 +66,7 @@ bool TableManager::tryLookup( string name, TypeDecl*& result ){
     return false;
 }
 
-bool TableManager::tryLookup( string name, MethDecl* result ){
+bool TableManager::tryLookup( string name, MethDecl*& result ){
     if(currTable != 0){
         if(currTable->tryLookup(name, result)){
             return true;
@@ -75,7 +75,7 @@ bool TableManager::tryLookup( string name, MethDecl* result ){
     return false;
 }
 
-bool TableManager::tryLookup( string name, TypeInst* result ){
+bool TableManager::tryLookup( string name, TypeInst*& result ){
     if(currTable != 0){
         if(currTable->tryLookup(name, result)){
             return true;
@@ -156,8 +156,10 @@ bool Table::tryLookup( string name, TypeInst*& result){
         result = &(it->second);
         return true;
     }
-    // CHECK PARENT TABLE
-
+    // Move up tree checking larger scope
+    if(parent && parent->tryLookup(name, result)){
+        return true;
+    }
     return false;
 }
 
@@ -171,7 +173,24 @@ bool Table::tryAddEntry( string varName, TypeInst t ){
 }
 
 bool Table::tryAddEntry( string methName, vector<TypeDecl*> argTypes,
-TypeDecl* returnType ){
+TypeDecl* returnType, bool forwardDecl ){
+    MethDecl* lookup = 0;
+    MethDecl toInsert(methName, argTypes, returnType, forwardDecl);
+    if(!tryLookup(methName, lookup)){
+        methTable[methName] = toInsert;
+        return true;
+    }
+    else{
+        if(lookup->isForward() && *lookup == toInsert){
+            //RESOLVE FD
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    // Something strange happened
+    cout << "Hope you got insurance" << endl;
     return false;
 }
 
@@ -189,6 +208,17 @@ TypeInst::TypeInst( string name, TypeDecl* type ){
     this->name = name;
     this->type = type;
 }
+
+void TypeInst::print(){
+    type->print();
+    cout << ": " << name << endl;
+}
+
+string TypeInst::getName(){
+    return name;
+}
+
+/////////////////////////////////////////
 
 TypeDecl::TypeDecl( string name, int width, bool forwardDecl ){
     this->name = name;
@@ -218,7 +248,13 @@ void TypeDecl::print(){
 
 /////////////////////////////////////////
 
-MethDecl::MethDecl( string name, vector<TypeDecl*>& argTypes, string retType, bool forwardDecl ){
+MethDecl::MethDecl(){
+    retType = 0;
+    forwardDecl = true;
+}
+
+MethDecl::MethDecl( string name, vector<TypeDecl*> argTypes, 
+TypeDecl* retType, bool forwardDecl ){
     this->name = name;
     this->argTypes = argTypes;
     this->forwardDecl = forwardDecl;
@@ -245,4 +281,15 @@ void MethDecl::print(){
         }
     }
     cout << retType;
+}
+
+// this is used for the purpose of setting forwardDecl so comparing them
+// Doesn't make sense
+bool MethDecl::operator==(const MethDecl& rhs) const{
+    if(this->name == rhs.name &&
+       this->argTypes == rhs.argTypes &&
+       this->retType == rhs.retType){
+           return true;
+       }
+       return false;
 }
