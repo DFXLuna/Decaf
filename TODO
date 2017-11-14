@@ -1,8 +1,6 @@
-- Get table to add int and possibly void type to GTT
+- Fix interface to global type table no typedecls
 - Somehow coerece the tree into typechecking itself
 
-- Implement method for forward declarations of methods
-and resolution of those declarations in tablemanager
 - Implement print and dump methods
 - Implement Memory management
     - TM traverses tree calling destructor of each table. Each table deletes it's own pointers(GTT FOR TYPEDECL)

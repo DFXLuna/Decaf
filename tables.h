@@ -14,9 +14,6 @@ class TypeInst;
 class TypeDecl;
 class MethDecl;
 
-// Most of the arguments should probably be by reference to prevent
-// unnecessary copying
-
 class TableManager{
 public:
     TableManager();
@@ -24,10 +21,10 @@ public:
     void enterScope();
     void exitScope();
 
+    // These could probably have the same name
     bool addTypeInst( string type, string name );
     bool addMethDecl( string name, vector<string> argTypes, 
                       string returnType );
-
 
     // If successful, result points to an entry in the global type table and
     // returns true
@@ -43,14 +40,17 @@ public:
 
     // These control the global type table
     // Declare a type without a width
-    bool forwardEntryGlobalTypeTable( string name, TypeDecl*& t );
+    bool forwardEntryGlobalTypeTable( string name );
     // Set width of forward declared entry
-    bool setWidthGlobalTypeTable( string name, int width );
+    bool resolveForwardGlobalTypeTable( string name, int width );
 
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
     Table* currTable;
+    // A little bit of a hack to allow methods to have void return types
+    // without allowing variables to have it
+    TypeDecl* voidType;
 };
 
 class Table{
@@ -77,10 +77,10 @@ private:
 
 class GlobalTypeTable {
 public:
-    bool tryAddEntry( string typeName, TypeDecl* t );
+    bool tryAddEntry( string typeName, TypeDecl t );
     bool tryLookup( string typeName, TypeDecl*& result );
 private:
-    map<string, TypeDecl*> types;
+    map<string, TypeDecl> types;
 };
 
 // This covers instances of a type
@@ -104,6 +104,8 @@ private:
 // before they are actually processed.
 class TypeDecl {
 public:
+    // for map
+    TypeDecl();
     TypeDecl( string name, int width = 0, bool forwardDecl = true );
 
     string getName();

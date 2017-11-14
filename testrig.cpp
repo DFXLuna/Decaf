@@ -5,13 +5,12 @@ using namespace std;
 
 int main(){
     TableManager t;
-    TypeDecl* ty = new TypeDecl( "TypeA" );
 
     // GTT TESTS
 
     // forward entry test
+    t.forwardEntryGlobalTypeTable( "TypeA" );
     TypeDecl* typea = 0;
-    t.forwardEntryGlobalTypeTable( "TypeA", ty );
     if(t.tryLookup( "TypeA", typea )){
         cout << "FET test passed" << endl;
     }
@@ -21,7 +20,7 @@ int main(){
 
     // Set width test
 
-    if(t.setWidthGlobalTypeTable("TypeA", 4) && typea->getWidth() == 4){
+    if(t.resolveForwardGlobalTypeTable("TypeA", 4) && typea->getWidth() == 4){
         cout << "SWT test passed" << endl;
     }
     else{
@@ -30,8 +29,7 @@ int main(){
 
     // Add existing member test
     typea = 0;
-    TypeDecl* ty2 = new TypeDecl( "TypeB" );
-    t.forwardEntryGlobalTypeTable( "TypeA", ty2 );
+    t.forwardEntryGlobalTypeTable( "TypeA" );
     t.tryLookup( "TypeA", typea );
     if(typea->getName() != "TypeA"){
         cout << "EMT test failed---" << endl;
@@ -154,6 +152,16 @@ int main(){
     }
     else{
         cout << "MAL test failed---" << endl;
+    }
+
+    // Int type Test
+    TypeInst* inta = 0;
+    if( t.addTypeInst("int", "IntA")  && t.tryLookup("IntA", inta) &&
+    inta->getName() == "IntA"){
+        cout << "ITT test passed" << endl;
+    }
+    else{
+        cout << "ITT test failed---" << endl;
     }
     return 0;
 }

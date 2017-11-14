@@ -4,9 +4,17 @@ TableManager::TableManager(){
     globalTypeTable = 0;
     currTable = 0;
     createGlobalTypeTable();
+
+    // Add int and void to table
+    voidType = new TypeDecl("void", 0, false);
+    forwardEntryGlobalTypeTable("int");
+    resolveForwardGlobalTypeTable("int", 4);
+    
 }
 
-TableManager::~TableManager(){}
+TableManager::~TableManager(){
+    delete voidType;
+}
 
 void TableManager::enterScope(){
     Table* newScope = new Table( currTable );
@@ -47,7 +55,10 @@ string returnType ){
     }
     // Lookup return type
     TypeDecl* ret = 0;
-    if(!tryLookup(returnType, ret)){
+    if(returnType == "void"){
+        ret = voidType;
+    }
+    else if(!tryLookup(returnType, ret)){
         return false;
     }
 
@@ -94,24 +105,26 @@ bool TableManager::createGlobalTypeTable(){
     return false;
 }
 
-bool TableManager::forwardEntryGlobalTypeTable( string name, TypeDecl*& t ){
-    if(globalTypeTable->tryAddEntry(name, t)){
+bool TableManager::forwardEntryGlobalTypeTable( string name ){
+    TypeDecl temp(name, 0, true);
+    if(globalTypeTable->tryAddEntry(name, temp)){
         return true;
     }
     return false;
 }
 
-bool TableManager::setWidthGlobalTypeTable( string name, int width ){
+bool TableManager::resolveForwardGlobalTypeTable( string name, int width ){
     TypeDecl* result = 0;
-    if(globalTypeTable->tryLookup(name, result)){
+    if(globalTypeTable->tryLookup(name, result) && result->isForward()){
         result->setWidth(width);
+        result->resolveForward();
         return true;
     }
     return false;    
 }
 /////////////////////////////////////////
 
-bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl* t ){
+bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl t ){
     // Can be used later for more verbose errors
     TypeDecl* temp = 0;
     if(tryLookup(typeName, temp)){
@@ -124,10 +137,10 @@ bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl* t ){
 
 bool GlobalTypeTable::tryLookup( string typeName, TypeDecl*& result ){
     // Newer c++ standards may have a lot of garbage in them but at least
-    // They give you ways to deal with this trash.
-    map<string, TypeDecl*>::iterator it;
+    // They give you ways to eal with this trash.
+    map<string, TypeDecl>::iterator it;
     if( (it = types.find(typeName)) != types.end() ){
-        result = it->second;
+        result = &(it->second);
         return true;
     }
     return false;
@@ -153,7 +166,7 @@ bool Table::tryLookup( string name, MethDecl*& result ){
     return false;
 }
 
-bool Table::tryLookup( string name, TypeInst*& result){
+bool Table::tryLookup( string name, TypeInst*& result ){
     map<string, TypeInst>::iterator it;
     if( (it = typeTable.find(name)) != typeTable.end() ){
         result = &(it->second);
@@ -223,6 +236,11 @@ string TypeInst::getName(){
 }
 
 /////////////////////////////////////////
+
+TypeDecl::TypeDecl(){
+    width = 0;
+    forwardDecl = true;
+}
 
 TypeDecl::TypeDecl( string name, int width, bool forwardDecl ){
     this->name = name;
