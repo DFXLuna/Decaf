@@ -146,7 +146,8 @@ int main(){
     methb = 0;
     methaArgs.push_back("TypeA");
     t.addMethDecl("MethB", methaArgs, "TypeA");
-    if(t.tryLookup("MethB", methb) && methb != 0 && 
+    if(t.tryLookup("MethB", methb) && 
+    methb != 0 && 
     methb->getArgTypes().size() == 1){
         cout << "MAL test passed" << endl;
     }
@@ -156,12 +157,27 @@ int main(){
 
     // Int type Test
     TypeInst* inta = 0;
-    if( t.addTypeInst("int", "IntA")  && t.tryLookup("IntA", inta) &&
+    if( t.addTypeInst("int", "IntA")  && 
+    t.tryLookup("IntA", inta) &&
     inta->getName() == "IntA"){
         cout << "ITT test passed" << endl;
     }
     else{
         cout << "ITT test failed---" << endl;
     }
+
+    // Void retType test
+    MethDecl* voida = 0;
+    if( t.addMethDecl("VoidA", methaArgs, "void") && 
+    t.tryLookup("VoidA", voida) &&
+    voida != 0){
+        cout << "VRT test passed" << endl;
+    }
+    else{
+        cout << "VRT test failed---" << endl;
+    }
+
+    
+    
     return 0;
 }

@@ -1,4 +1,3 @@
-- Fix interface to global type table no typedecls
 - Somehow coerece the tree into typechecking itself
 
 - Implement print and dump methods
