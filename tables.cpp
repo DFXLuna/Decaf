@@ -14,17 +14,13 @@ TableManager::TableManager(){
 
 TableManager::~TableManager(){
     // Return to highest scope and then deallocate entire tree
-    while(currTable->getParent() != 0 ){
-        exitScope();
+    if(currTable != 0){
+        while(currTable->getParent() != 0 ){
+            exitScope();
+        }
+        delete currTable;
     }
-    delete currTable;
     delete voidType;
-}
-
-void TableManager::processTopLevel( vector<Node*> trees ){
-    for(unsigned int i = 0; i < trees.size(); i++){
-        forwardEntryGlobalTypeTable()
-    }
 }
 
 void TableManager::enterScope(){

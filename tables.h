@@ -1,5 +1,5 @@
 #ifndef TABLES_H
-#define NODE_H
+#define TABLES_H
 
 #include<string>
 using std::string;
@@ -10,7 +10,6 @@ using std::vector;
 #include<iostream>
 using std::cout;
 using std::endl;
-#include "node.h"
 
 class Table;
 class GlobalTypeTable;

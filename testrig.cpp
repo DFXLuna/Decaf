@@ -3,11 +3,19 @@
 using namespace std;
 
 void basicTests();
+void dumpEmpty();
 
 int main(){
     basicTests();
+    cout << "Dump on Empty" << endl;
+    dumpEmpty();
     
     return 0;
+}
+
+void dumpEmpty(){
+    TableManager t;
+    t.dump();
 }
 
 void basicTests(){
