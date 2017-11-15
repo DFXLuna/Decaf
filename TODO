@@ -1,8 +1,9 @@
 - Implement print and dump methods
 - Somehow coerece the tree into typechecking itself
-
+- Modify table dump to indent
 - Enable error checking in Bison
 
 
 Victory lap:
 - Implement error type in tablemanager for more verbose failure
+- Make tables print in order

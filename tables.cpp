@@ -130,6 +130,24 @@ bool TableManager::resolveForwardGlobalTypeTable( string name, int width ){
     }
     return false;    
 }
+
+void TableManager::dump(){
+    if( globalTypeTable != 0 ){
+        globalTypeTable->print();
+    }
+    // Save current scope to return to it after printing
+    if( currTable != 0 ){
+        Table* currScope = currTable;
+        while( currTable->getParent() != 0 ){
+            currTable = currTable->getParent();
+        }
+        // Dump the entire table
+        currTable->print();
+
+        // Return to scope
+        currTable = currScope;
+    }
+}
 /////////////////////////////////////////
 
 bool GlobalTypeTable::tryAddEntry( string typeName, TypeDecl t ){
@@ -152,6 +170,15 @@ bool GlobalTypeTable::tryLookup( string typeName, TypeDecl*& result ){
         return true;
     }
     return false;
+}
+
+void GlobalTypeTable::print(){
+    cout << "Global Type Table" << endl;
+    for(map<string, TypeDecl>::iterator it = types.begin(); it != types.end(); it++){
+        it->second.print();
+        cout << endl;
+    }
+    cout << endl << endl;
 }
 
 /////////////////////////////////////////
@@ -231,6 +258,26 @@ Table* Table::getParent(){
 
 void Table::registerChild( Table* c ){
     children.push_back(c);
+}
+
+void Table::print(){
+    cout << "Table" << endl;
+    for( map<string, TypeInst>::iterator it = typeTable.begin();
+    it != typeTable.end(); it++){
+        it->second.print();
+    }
+    for( map<string, MethDecl>::iterator it = methTable.begin();
+    it != methTable.end(); it++){
+        it->second.print();
+    }
+    cout << endl;
+
+    // Print children
+    for(unsigned int i = 0; i < children.size(); i++){
+        children[i]->print();
+    }
+
+
 }
 
 /////////////////////////////////////////
@@ -329,6 +376,7 @@ void MethDecl::print(){
         }
     }
     retType->print();
+    cout << endl;
 }
 
 // this is used for the purpose of setting forwardDecl so comparing them

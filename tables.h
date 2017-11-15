@@ -43,6 +43,7 @@ public:
     bool forwardEntryGlobalTypeTable( string name );
     // Set width of forward declared entry
     bool resolveForwardGlobalTypeTable( string name, int width );
+    void dump();
 
 private:
     bool createGlobalTypeTable();
@@ -71,6 +72,8 @@ public:
     
     Table* getParent();
     void registerChild( Table* child );
+
+    void print();
 private:
     Table* parent;
     map<string, TypeInst> typeTable;
@@ -83,6 +86,7 @@ class GlobalTypeTable {
 public:
     bool tryAddEntry( string typeName, TypeDecl t );
     bool tryLookup( string typeName, TypeDecl*& result );
+    void print();
 private:
     map<string, TypeDecl> types;
 };
@@ -94,8 +98,8 @@ public:
     // then populating it.
     TypeInst();
     TypeInst( string name, TypeDecl* type );
-    void print();
     string getName();
+    void print();
 private:
     // Var name
     string name;
@@ -126,7 +130,7 @@ private:
 
 // This covers the declaration of a method,
 // methods get their own separate table, these also allow forward declarations
-// for type checking, meth instances don't make sense
+// for type checking 
 class MethDecl {
 public:
     // For map

@@ -2,8 +2,15 @@
 #include"tables.h"
 using namespace std;
 
+void basicTests();
 
 int main(){
+    basicTests();
+    
+    return 0;
+}
+
+void basicTests(){
     TableManager t;
 
     // GTT TESTS
@@ -177,7 +184,5 @@ int main(){
         cout << "VRT test failed---" << endl;
     }
 
-    
-    
-    return 0;
+    t.dump();
 }
