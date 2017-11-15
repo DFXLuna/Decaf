@@ -49,6 +49,11 @@ bool Node::getTypeID( string& type, string& ID ){
     return false;
 }
 
+bool Node::gatherParams( vector<string>& types, vector<string>& ids ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
 int Node::gatherBrackets(){
     cout << "Error: malformed syntax tree" << endl;
     return -1;
@@ -190,7 +195,8 @@ MethDeclsNode::MethDeclsNode( Node* methdecl, Node* next ):
 Node( methdecl, next ){}
 
 void MethDeclsNode::populateTables( TableManager* tm ){
-    cout << "In Methdecls!" << endl;
+    if(right){ right->populateTables(tm); }
+    if(left){ left->populateTables(tm); } 
 }
 
 void MethDeclsNode::print(){
@@ -350,6 +356,24 @@ Node( tid, plist  ){
     this->block = block;
 }
 
+void MethodDecNode::populateTables( TableManager* tm ){
+   if(left){ 
+        string type;
+        string id;
+        if(left->getTypeID(type, id)){
+            // Since type always goes to int, this only allows 
+            // array types to be registered
+            tm->forwardEntryGlobalTypeTable(type);
+            vector<string> types;
+            vector<string> ids;
+            if(right){ right->gatherParams( types, ids ); }
+            else{
+                cout << "Error: malformed syntax tree" << endl;
+            }
+        } 
+   }     
+}
+
 MethodDecNode::~MethodDecNode(){
     delete block;
 }
@@ -422,6 +446,11 @@ void IDMethodDecNode::print(){
 // Parameter List Node
 ParameterListNode::ParameterListNode( Node* param ): Node( param, 0 ){}
 
+bool ParameterListNode::gatherParams( vector<string>& types, vector<string>& ids ){
+    if(left){ return left->gatherParams( types, ids ); }
+    return true;
+}
+
 void ParameterListNode::print(){
     if(left){
         cout << "<plist> -> <param>" << endl;
@@ -442,6 +471,16 @@ Node( type, id ){
 
 ParameterNode::~ParameterNode(){
     delete next;
+}
+
+bool ParameterNode::gatherParams( vector<string>& types, vector<string>& ids ){
+    string type;
+    string id;
+    if(!left || !left->getID(type)){ return false; }
+    if(!right || !right->getID(id)){ return false; }
+    // This is safe because the only type this node deals with is int
+    types.push_back(type);
+    ids.push_back(id);
 }
 
 void ParameterNode::print(){

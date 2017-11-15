@@ -25,6 +25,8 @@ public:
     bool virtual getID( string& result );
     //if node is a TypeId node, populates type, id and returns true
     bool virtual getTypeID( string& type, string& ID );
+    // gather parameter types from a plist node
+    bool virtual gatherParams( vector<string>& types, vector<string>& ids );
 
     // count the number of brackets in a multibracket set
     int virtual gatherBrackets();
@@ -157,6 +159,7 @@ private:
 class MethodDecNode : public Node {
 public:
     MethodDecNode( Node* tid = 0, Node* plist = 0, Node* block = 0 );
+    void populateTables( TableManager* tm );
     ~MethodDecNode();
     void print();
 private:
@@ -168,6 +171,7 @@ private:
 class VoidMethodDecNode : public Node {
 public:
     VoidMethodDecNode( Node* id = 0, Node* plist = 0, Node* block = 0 );
+    void populateTables( TableManager* tm );
     ~VoidMethodDecNode();
     void print();
 
@@ -180,6 +184,7 @@ class IDMethodDecNode : public Node {
 public:
     IDMethodDecNode( Node* result = 0, Node* id = 0, 
     Node* plist = 0, Node* block = 0 );
+    void populateTables( TableManager* tm );
     ~IDMethodDecNode();
     void print();
 private:
@@ -208,6 +213,7 @@ private:
 class ParameterListNode : public Node {
 public:
     ParameterListNode( Node* param = 0 );
+    bool gatherParams( vector<string>& types, vector<string>& ids );
     void print();
 };
 
@@ -217,6 +223,7 @@ class ParameterNode : public Node {
 public:
     ParameterNode( Node* type = 0, Node* id = 0, Node* next = 0 );
     ~ParameterNode();
+    bool gatherParams( vector<string>& types, vector<string>& ids );
     void print();
 private:
     Node* next;
@@ -227,6 +234,7 @@ public:
     ParameterIDNode( Node* type = 0, Node* mb = 0, Node* id = 0,
     Node* next = 0 );
     ~ParameterIDNode();
+    bool gatherParams( vector<string>& types, vector<string>& ids );
     void print();
 private:
     Node* mb;
