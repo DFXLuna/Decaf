@@ -8,6 +8,7 @@ using std::cout;
 using std::endl;
 #include<vector>
 using std::vector;
+#include"tables.h"
 
 class Node {
 public:
@@ -17,7 +18,16 @@ public:
     void setRight( Node* );
     void virtual print();
     // This is about to get very messy
-    void virtual registerType( TableManager* tm );
+    bool virtual registerType( TableManager* tm );
+    void virtual populateTables( TableManager* tm );
+
+    // If node is an idNode, populates result and returns true
+    bool virtual getID( string& result );
+    //if node is a TypeId node, populates type, id and returns true
+    bool virtual getTypeID( string& type, string& ID );
+
+    // count the number of brackets in a multibracket set
+    int virtual gatherBrackets();
 protected:
     Node* left;
     Node* right;
@@ -26,6 +36,7 @@ protected:
 class IdNode : public Node {
 public:
     IdNode( string v );
+    bool getID( string& result );
 private:
     string val;
 };
@@ -33,6 +44,7 @@ private:
 class TypeIdNode : public Node {
 public:
     TypeIdNode( Node* type = 0, Node* id = 0 );
+    bool getTypeID( string& type, string& ID );
     void print();
 };
 
@@ -42,6 +54,8 @@ class ClassDecNode : public Node {
 public:
     ClassDecNode( Node* classbody = 0, Node* id = 0 );
     void print();
+    bool registerType( TableManager* tm );
+    void populateTables( TableManager* tm );
 };
 
 /////////////////////////////////////////
@@ -51,10 +65,10 @@ public:
     ClassBodyNode( Node* vardecls = 0, Node* condecls = 0,
     Node* methdecls = 0 );
     ~ClassBodyNode();
+    void populateTables( TableManager* tm );
     void print();
 private:
     Node* methdecls;
-
 };
 
 
@@ -64,18 +78,21 @@ private:
 class VarDeclsNode : public Node {
 public:
     VarDeclsNode( Node* vardecl = 0 , Node* next = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
 class ConDeclsNode : public Node {
 public:
     ConDeclsNode( Node* condecl = 0 , Node* next = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
 class MethDeclsNode : public Node {
 public:
     MethDeclsNode( Node* methdecl = 0 , Node* next = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
@@ -86,12 +103,14 @@ public:
 class VarTypeIdNode : public Node {
 public:
     VarTypeIdNode( Node* tid = 0 );
+    void populateTables( TableManager* tm ); 
     void print();
 };
 
 class IdIdNode : public Node {
 public:
     IdIdNode( Node* l = 0, Node* r = 0);
+    void populateTables( TableManager* tm );
     void print();
 };
 
@@ -99,6 +118,7 @@ class IdMultiIdNode : public Node {
 public:
     IdMultiIdNode( Node* type = 0, Node* b = 0, Node* id = 0 );
     ~IdMultiIdNode();
+    void populateTables( TableManager* tm );
     void print();
 private:
     // One extra pointer needed for id multibrackets id case
@@ -111,6 +131,7 @@ private:
 class TypeNode : public Node {
 public: 
     TypeNode( Node* t = 0, Node* brackets = 0);
+    bool getID( string& result );
     void print();
 };
 
@@ -545,6 +566,7 @@ public:
 class BracketNode : public Node {
 public:
     BracketNode( Node* next = 0 );
+    int gatherBrackets();
     void print();
 };
 

@@ -1,0 +1,19 @@
+class id {
+    abc( type id, int abc, int[][][] abc ){
+        int a;
+        type b;
+        int[][] a;
+        type[][] b;
+    }
+}
+class abc {
+    abc a;
+    abc(){}
+    abc id(int a, type b, int[] a, type b){
+        int a;
+        type b;
+        int[] a;
+        type[] b;
+    }
+}
+class def {}

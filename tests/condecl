@@ -1,0 +1,11 @@
+class id {
+    abc a;
+    abc(){}
+    abc( type id, int abc, int[][][] abc ){
+        int a;
+        type b;
+        int[] a;
+        type[] b;
+    }
+    abc id(){}
+}

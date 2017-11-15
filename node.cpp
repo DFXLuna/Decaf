@@ -30,16 +30,64 @@ void Node::print(){
     if(right){ right->print(); }
 }
 
+bool Node::registerType( TableManager* tm ){
+    cout << "Error: Malformed syntax tree" << endl;
+    return false;
+}
+
+void Node::populateTables( TableManager* tm ){
+    cout << "Error: Malformed syntax tree" << endl;
+}
+
+bool Node::getID( string& result ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
+bool Node::getTypeID( string& type, string& ID ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
+int Node::gatherBrackets(){
+    cout << "Error: malformed syntax tree" << endl;
+    return -1;
+}
+
+/////////////////////////////////////////
+
 IdNode::IdNode( string v ): Node( 0, 0 ){
     val = v;
 }
 
+bool IdNode::getID( string& result ){
+    result = val;
+    return true;
+}
+
 TypeIdNode::TypeIdNode( Node* type, Node* id ): Node( type, id ){}
+
+bool TypeIdNode::getTypeID( string& type, string& ID ){
+    string typeTemp;
+    string nameTemp;
+    if(left && left->getID(typeTemp) &&
+    right && right->getID(nameTemp)){
+        type = typeTemp;
+        ID = nameTemp;
+        return true;
+    }
+    else{
+        cout << "Error: malformed tree" << endl;
+        return false;
+    }
+
+}
 
 void TypeIdNode::print(){
     cout << "<typeid> -> <type> id" << endl;
     if(left){ left->print(); }
 }
+
 /////////////////////////////////////////
 // Classdec node
 ClassDecNode::ClassDecNode( Node* classbody, Node* id ): Node( classbody, id ){}
@@ -47,6 +95,21 @@ ClassDecNode::ClassDecNode( Node* classbody, Node* id ): Node( classbody, id ){}
 void ClassDecNode::print(){
     cout << "<classdec> -> class ID <classbody>" << endl;
     if(left){ left->print(); }
+}
+
+bool ClassDecNode::registerType( TableManager* tm ){
+    string name;
+    if(right->getID(name)){
+        tm->forwardEntryGlobalTypeTable(name);
+    }
+
+    return true;
+}
+
+void ClassDecNode::populateTables( TableManager* tm ){
+    tm->enterScope();
+    if(left){ left->populateTables(tm); }
+    tm->exitScope();
 }
 
 /////////////////////////////////////////
@@ -60,6 +123,11 @@ ClassBodyNode::~ClassBodyNode(){
     delete methdecls;
 }
 
+void ClassBodyNode::populateTables( TableManager* tm ){
+    if(left){ left->populateTables( tm ); }
+    if(right){ right->populateTables( tm ); }
+    if(methdecls){ methdecls->populateTables( tm ); }
+}
 
 void ClassBodyNode::print(){
     cout << "<classbody> -> { ";
@@ -76,6 +144,12 @@ void ClassBodyNode::print(){
 // grouping nodes. Vardecls, condecls, methdecls
 VarDeclsNode::VarDeclsNode( Node* vardecl, Node* next ):
 Node( vardecl, next ){}
+
+void VarDeclsNode::populateTables( TableManager* tm ){
+    // List is backwards
+    if(right){ right->populateTables(tm); }
+    if(left){ left->populateTables(tm); }
+}
 
 void VarDeclsNode::print(){
     cout << "<vardecls> -> ";
@@ -94,6 +168,10 @@ void VarDeclsNode::print(){
 ConDeclsNode::ConDeclsNode( Node* condecl, Node* next ):
 Node( condecl, next ){}
 
+void ConDeclsNode::populateTables( TableManager* tm ){
+    cout << "In condecls!" << endl;
+}
+
 void ConDeclsNode::print(){
     cout << "<condecls> -> ";
     if(right){
@@ -111,6 +189,10 @@ void ConDeclsNode::print(){
 MethDeclsNode::MethDeclsNode( Node* methdecl, Node* next ):
 Node( methdecl, next ){}
 
+void MethDeclsNode::populateTables( TableManager* tm ){
+    cout << "In Methdecls!" << endl;
+}
+
 void MethDeclsNode::print(){
     cout << "<methdecls> -> ";
     if(right){
@@ -127,6 +209,22 @@ void MethDeclsNode::print(){
 // Var Decl Nodes
 VarTypeIdNode::VarTypeIdNode( Node* tid ): Node( tid, 0 ){}
 
+void VarTypeIdNode::populateTables( TableManager* tm ){
+    if(left){ 
+        string type;
+        string id;
+        if(left->getTypeID(type, id)){
+            // Since type always goes to int, this only allows 
+            // array types to be registered
+            tm->forwardEntryGlobalTypeTable(type);
+            tm->addTypeInst(type, id);
+        }
+        else{
+            cout << "Error: malformed syntax tree" << endl;
+        }
+    }
+}
+
 void VarTypeIdNode::print(){
     cout << "<vardecl> -> <typeid>;" << endl;
     if(left){ left->print(); }
@@ -135,6 +233,18 @@ void VarTypeIdNode::print(){
 ////
 
 IdIdNode::IdIdNode( Node* l, Node* r ): Node( l, r ){}
+
+void IdIdNode::populateTables( TableManager* tm ){
+    string type;
+    string name;
+    if( left && left->getID(type) &&
+    right && right->getID(name) ){
+        tm->addTypeInst(type, name);
+    }
+    else{
+        cout << "Error: Malformed syntax tree" << endl;
+    }
+}
 
 void IdIdNode::print(){
     cout << "<vardecl> -> id id;" << endl;
@@ -150,6 +260,27 @@ IdMultiIdNode::~IdMultiIdNode(){
     delete brackets;
 }
 
+void IdMultiIdNode::populateTables( TableManager* tm ){
+    int numBrackets = 0;
+    if(brackets){ numBrackets = brackets->gatherBrackets(); }
+    
+    string type;
+    string name;
+    if( left && left->getID(type) &&
+    right && right->getID(name) ){
+        // Construct the array type and put it in the GTT, then use it
+        // If it already exists, no problem
+        for(int i = 0; i < numBrackets; i++){
+            type = type + "[]";
+        }
+        tm->forwardEntryGlobalTypeTable(type);
+        tm->addTypeInst(type, name);
+    }
+    else{
+        cout << "Error: Malformed syntax tree" << endl;
+    }
+}
+
 void IdMultiIdNode::print(){
     cout << "<vardecl> -> id <multibrackets> id" << endl;
     if(brackets){ brackets ->print(); }
@@ -158,6 +289,21 @@ void IdMultiIdNode::print(){
 /////////////////////////////////////////
 // Type Nodes
 TypeNode::TypeNode( Node* t, Node* brackets ): Node( t, brackets ){}
+
+bool TypeNode::getID( string& result ){
+    string temp;
+    // t type always goes to int
+    if(left){ temp = "int"; }
+    else{ return false; }
+    if(right){ 
+        int b = right->gatherBrackets();
+        for(int i = 0; i < b; i++){
+            temp += "[]";
+        }
+    }
+    result = temp;
+    return true;
+}
 
 void TypeNode::print(){
     cout << "<type> -> ";
@@ -845,6 +991,11 @@ void BracketSetNode::print(){
 }
 
 BracketNode::BracketNode( Node* next ): Node( next, 0 ) {}
+
+int BracketNode::gatherBrackets(){
+    if(left){ return 1 + left->gatherBrackets(); }
+    return 1;
+}
 
 void BracketNode::print(){
     cout << "<multibrackets> -> ";

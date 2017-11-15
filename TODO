@@ -1,12 +1,11 @@
 - Somehow coerece the tree into typechecking itself
-    - Add types to GTT
     - Add vars to tables
     - Add methods to tables
     - follow scope
     - Type check
 
-
 - Enable error checking in Bison
+- Method overloading?
 
 
 Victory lap:

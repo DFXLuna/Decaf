@@ -1,0 +1,8 @@
+class id {
+    abc( type id, int abc, int[][][] abc ){
+        int a;
+        type b;
+        int[][] a;
+        type[][] b;
+    }
+}

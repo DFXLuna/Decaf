@@ -4,4 +4,6 @@
  "name: () -> returnType" for functions with no parameters
 
 - The directions don't say that we support method overloading, 
-so it isn't supported.
+so it isn't supported. This might change because of constructors.
+
+- Arrays are stored as types, so they show up in the global type table.

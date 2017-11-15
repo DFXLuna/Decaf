@@ -1,0 +1,83 @@
+/* this should only output one class dec with only condecls */
+/* multi 
+// With some single lines mixed it
+
+*comment
+
+
+*multi 
+
+// With some single lines mixed it
+// With some single lines mixed it
+*multi */
+class// With some single lines mixed it
+/**/// With some single lines mixed it
+/****//*****/ id/****/ /****/{/****/
+    abc(/*// With some single lines mixed it
+    l*//*iterally// With some single lines mixed it
+   abc( type id, int abc, int[][][] abc ){
+        int a;
+        type b;
+        int[][] a;
+        type[][] b;
+    }  
+
+
+class id {
+    abc( type id, int abc, int[][][] abc ){
+        int a;
+        type b;
+        int[][] a;
+        type[][] b;
+    }
+}
+
+
+
+
+
+
+
+    unreadable
+    */type /**/id/**/,/**/ int/**/ abc/**/, int/*// With some single lines mixed it// With some single lines mixed it// With some single lines mixed it
+    ****************
+    **************
+    ************
+    **********
+    *********
+    ********
+    *******
+    ******
+    *****
+    ****
+    ***
+    **
+    *
+    */[/*// With some single lines mixed it
+    
+    
+    */]/**/[/**/]/**/[/**/] /**/abc/**/ )/**/{/**/
+        /**/int/**/ a/* */;
+        /* */
+        type /**/b/**/;/**/
+        int[/*
+        this/**//*
+        is
+        super
+        ugly
+        */][/**/] a/**/;/**/
+        type[/**/][/**/] /**/b/**/;
+    }/**/
+    /*
+    this
+    is
+    a
+    // With some single lines mixed it
+    multi
+    // With some single lines mixed it
+    line
+    comment
+    // With some single lines mixed it
+    */
+}// With some single lines mixed it
+// With some single lines mixed it

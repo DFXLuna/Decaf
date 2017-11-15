@@ -9,7 +9,9 @@ TableManager::TableManager(){
     voidType = new TypeDecl("void", 0, false);
     forwardEntryGlobalTypeTable("int");
     resolveForwardGlobalTypeTable("int", 4);
-    
+
+   // Add the global scope
+   enterScope(); 
 }
 
 TableManager::~TableManager(){
@@ -297,8 +299,10 @@ TypeInst::TypeInst( string name, TypeDecl* type ){
 }
 
 void TypeInst::print(){
+    cout << name << ": ";
     type->print();
-    cout << ": " << name << endl;
+    cout << endl;
+    
 }
 
 string TypeInst::getName(){

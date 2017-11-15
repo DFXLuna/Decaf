@@ -1,0 +1,19 @@
+class def {
+    int[] b;
+    abc[][][] a;
+    def[][] c;
+    ghi[][][][][][][] d;
+}
+
+class abc{
+    def a;
+    int b;
+    abc c;
+}
+
+class ghi{
+    ghi a;
+    int b;
+    abc c;
+    def d;
+}

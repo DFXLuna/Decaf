@@ -1,0 +1,10 @@
+class id {
+    abc a;
+    abc(){}
+    abc id(int a, type b, int[] a, type b){
+        int a;
+        type b;
+        int[] a;
+        type[] b;
+    }
+}
