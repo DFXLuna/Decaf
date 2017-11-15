@@ -21,6 +21,12 @@ TableManager::~TableManager(){
     delete voidType;
 }
 
+void TableManager::processTopLevel( vector<Node*> trees ){
+    for(unsigned int i = 0; i < trees.size(); i++){
+        forwardEntryGlobalTypeTable()
+    }
+}
+
 void TableManager::enterScope(){
     Table* newScope = new Table( currTable );
     if(currTable != 0 ){
@@ -142,7 +148,7 @@ void TableManager::dump(){
             currTable = currTable->getParent();
         }
         // Dump the entire table
-        currTable->print();
+        currTable->print(0);
 
         // Return to scope
         currTable = currScope;
@@ -260,21 +266,24 @@ void Table::registerChild( Table* c ){
     children.push_back(c);
 }
 
-void Table::print(){
+void Table::print( int indent ){
+    for(int i = 0; i < indent; i++){ cout << "  "; }
     cout << "Table" << endl;
     for( map<string, TypeInst>::iterator it = typeTable.begin();
     it != typeTable.end(); it++){
+        for(int i = 0; i < indent; i++){ cout << "  "; }
         it->second.print();
     }
     for( map<string, MethDecl>::iterator it = methTable.begin();
     it != methTable.end(); it++){
+        for(int i = 0; i < indent; i++){ cout << "  "; }
         it->second.print();
     }
     cout << endl;
 
     // Print children
     for(unsigned int i = 0; i < children.size(); i++){
-        children[i]->print();
+        children[i]->print(indent + 1);
     }
 
 

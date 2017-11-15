@@ -2,11 +2,11 @@
 #define NODE_H
 
 #include<string>
+using std::string;
 #include<iostream>
-#include<vector>
 using std::cout;
 using std::endl;
-using std::string;
+#include<vector>
 using std::vector;
 
 class Node {
@@ -16,6 +16,8 @@ public:
     void setLeft( Node* );
     void setRight( Node* );
     void virtual print();
+    // This is about to get very messy
+    void virtual registerType( TableManager* tm );
 protected:
     Node* left;
     Node* right;

@@ -1,3 +1,6 @@
+#ifndef TABLES_H
+#define NODE_H
+
 #include<string>
 using std::string;
 #include<map>
@@ -7,6 +10,7 @@ using std::vector;
 #include<iostream>
 using std::cout;
 using std::endl;
+#include "node.h"
 
 class Table;
 class GlobalTypeTable;
@@ -73,7 +77,7 @@ public:
     Table* getParent();
     void registerChild( Table* child );
 
-    void print();
+    void print( int indent );
 private:
     Table* parent;
     map<string, TypeInst> typeTable;
@@ -148,3 +152,5 @@ private:
     TypeDecl* retType;
     bool forwardDecl;
 };
+
+#endif

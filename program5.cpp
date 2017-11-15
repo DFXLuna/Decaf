@@ -15,8 +15,6 @@ vector<Node*> tree;
 int main(int argc, char* argv[]){
     yyparse();
     // Vector needed because multiple programs per run
-    for( unsigned int i = 0; i < tree.size(); i++){
-        tree[i]->print();
-    }
+    
     return 0;
 }
