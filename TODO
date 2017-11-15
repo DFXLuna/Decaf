@@ -1,9 +1,6 @@
+- Implement print and dump methods
 - Somehow coerece the tree into typechecking itself
 
-- Implement print and dump methods
-- Implement Memory management
-    - TM traverses tree calling destructor of each table. Each table deletes it's own pointers(GTT FOR TYPEDECL)
-    - Possibly unneeded for general tables
 - Enable error checking in Bison
 
 

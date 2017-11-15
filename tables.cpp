@@ -13,11 +13,19 @@ TableManager::TableManager(){
 }
 
 TableManager::~TableManager(){
+    // Return to highest scope and then deallocate entire tree
+    while(currTable->getParent() != 0 ){
+        exitScope();
+    }
+    delete currTable;
     delete voidType;
 }
 
 void TableManager::enterScope(){
     Table* newScope = new Table( currTable );
+    if(currTable != 0 ){
+        currTable->registerChild( newScope );
+    }
     currTable = newScope;
 }
 
@@ -151,6 +159,12 @@ Table::Table( Table* parent ){
     this->parent = parent;
 }
 
+Table::~Table(){
+    for(unsigned int i = 0; i < children.size(); i++){
+        delete children[i];
+    }
+}
+
 bool Table::tryLookup( string name, MethDecl*& result ){
     // Check local table
     map<string, MethDecl>::iterator it;
@@ -213,6 +227,10 @@ TypeDecl* returnType, bool forwardDecl ){
 
 Table* Table::getParent(){
     return parent;
+}
+
+void Table::registerChild( Table* c ){
+    children.push_back(c);
 }
 
 /////////////////////////////////////////

@@ -56,6 +56,7 @@ private:
 class Table{
 public:
     Table( Table* parent );
+    ~Table();
     // If successful, result points to an entry in the type instance tree  and
     // returns true
     bool tryLookup( string name, TypeInst*& result );
@@ -69,10 +70,13 @@ public:
                       TypeDecl* returnType, bool forwardDecl = true );
     
     Table* getParent();
+    void registerChild( Table* child );
 private:
     Table* parent;
     map<string, TypeInst> typeTable;
     map<string, MethDecl> methTable;
+    // Needed for dumping table and freeing memory
+    vector<Table*> children;
 };
 
 class GlobalTypeTable {
