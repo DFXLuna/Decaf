@@ -30,6 +30,11 @@ public:
 
     // count the number of brackets in a multibracket set
     int virtual gatherBrackets();
+
+    // Verifies constructors have the same name as containing class
+    bool virtual checkConstructorNames();
+
+    bool virtual passConstructorNames( string name );
 protected:
     Node* left;
     Node* right;
@@ -57,6 +62,7 @@ public:
     ClassDecNode( Node* classbody = 0, Node* id = 0 );
     void print();
     bool registerType( TableManager* tm );
+    bool checkConstructorNames();
     void populateTables( TableManager* tm );
 };
 
@@ -67,6 +73,7 @@ public:
     ClassBodyNode( Node* vardecls = 0, Node* condecls = 0,
     Node* methdecls = 0 );
     ~ClassBodyNode();
+    bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
     void print();
 private:
@@ -87,6 +94,7 @@ public:
 class ConDeclsNode : public Node {
 public:
     ConDeclsNode( Node* condecl = 0 , Node* next = 0 );
+    bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
     void print();
 };
@@ -148,6 +156,7 @@ public:
 class ConstructorDecNode : public Node {
 public:
     ConstructorDecNode( Node* id = 0, Node* plist = 0, Node* block = 0 );
+    bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
     ~ConstructorDecNode();
     void print();

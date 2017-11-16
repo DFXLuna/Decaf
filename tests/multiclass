@@ -1,5 +1,5 @@
 class type {
-    abc( type id, int abc, int[][][] abc ){
+    type( type id, int abc, int[][][] abc ){
         int a;
         type b;
         int[][] c;
@@ -16,4 +16,6 @@ class abc {
         type[] d;
     }
 }
-class def {}
+class def {
+    def(){}
+}

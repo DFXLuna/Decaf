@@ -39,6 +39,16 @@ void Node::populateTables( TableManager* tm ){
     cout << "Error: Malformed syntax tree" << endl;
 }
 
+bool Node::checkConstructorNames(){
+    cout << "Error malformed syntax tree" << endl;
+    return false;
+}
+
+bool Node::passConstructorNames( string name ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
 bool Node::getID( string& result ){
     cout << "Error: malformed syntax tree" << endl;
     return false;
@@ -111,10 +121,32 @@ bool ClassDecNode::registerType( TableManager* tm ){
     return true;
 }
 
+bool ClassDecNode::checkConstructorNames(){
+    string name;
+    if( right->getID(name) ){
+        if( !left ){
+            cout << "Error: malformed syntax tree" << endl;
+            return false;
+        }
+        if( !left->passConstructorNames(name) ){
+            return false;
+        }
+    }
+    else{
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    return true;
+}
+
 void ClassDecNode::populateTables( TableManager* tm ){
+    // Name table
     string name;
     if(!right->getID(name)){ cout << "Error: Malformed syntax tree" << endl; }
     name = tm->getCurrentScope() + "::" + name;
+    // Check constructor names
+    checkConstructorNames();
+    // Populate table
     tm->enterScope(name);
     if(left){ left->populateTables(tm); }
     tm->exitScope();
@@ -129,6 +161,13 @@ ClassBodyNode::ClassBodyNode( Node* vardecls, Node* condecls, Node* methdecls )
 
 ClassBodyNode::~ClassBodyNode(){
     delete methdecls;
+}
+
+bool ClassBodyNode::passConstructorNames( string name ){
+    if( right && right->passConstructorNames( name ) ){
+        return true;
+    }
+    return false;
 }
 
 void ClassBodyNode::populateTables( TableManager* tm ){
@@ -175,6 +214,16 @@ void VarDeclsNode::print(){
 
 ConDeclsNode::ConDeclsNode( Node* condecl, Node* next ):
 Node( condecl, next ){}
+
+bool ConDeclsNode::passConstructorNames( string name ){
+    if( right && !right->passConstructorNames( name ) ){
+        return false;
+    }
+    if(left && !left->passConstructorNames( name ) ){
+        return false;
+    }
+    return true;
+}
 
 void ConDeclsNode::populateTables( TableManager* tm ){
     if(right){ right->populateTables(tm); }
@@ -340,6 +389,20 @@ void SimpleTypeNode::print(){
 ConstructorDecNode::ConstructorDecNode( Node* id, Node* plist, Node* block ):
 Node( id, plist ){
     this->block = block;
+}
+
+bool ConstructorDecNode::passConstructorNames( string name ){
+    string conName;
+    if( !left->getID(conName) ){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if( name != conName ){
+        cout << "Error: Constructor name '" << conName 
+        << "' does not match class name '" << name << "'" << endl;
+        return false;
+    }
+    return true;
 }
 
 void ConstructorDecNode::populateTables( TableManager* tm ){
