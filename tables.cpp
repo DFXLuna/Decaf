@@ -135,6 +135,37 @@ bool TableManager::resolveForwardGlobalTypeTable( string name, int width ){
     return false;    
 }
 
+bool TableManager::verifyTypes( vector<string> types ){
+    TypeDecl* temp = 0;
+    string sub;
+    for( unsigned int i = 0; i < types.size(); i++ ){
+        // check for array type
+        size_t loc = types[i].find("[");
+        if( loc == string::npos ){
+            // Not array, check normally
+            if( !tryLookup(types[i], temp) ){
+                return false;
+            }
+        }
+        else{
+            // Check substring that is not array
+            sub = types[i].substr( 0, loc );
+            if( !tryLookup(sub, temp) ){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void TableManager::addTypes( vector<string> types ){
+    // This might try to add duplicate entries, but the table 
+    // can handle it.
+    for(unsigned int i = 0; i < types.size(); i++){
+        forwardEntryGlobalTypeTable(types[i]);
+    }
+}
+
 void TableManager::dump(){
     if( globalTypeTable != 0 ){
         globalTypeTable->print();

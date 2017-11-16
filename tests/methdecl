@@ -1,10 +1,8 @@
 class id {
-    abc a;
-    abc(){}
-    abc id(int a, type b, int[] a, type b){
-        int a;
-        type b;
-        int[] a;
-        type[] b;
-    }
+    int id(){}
+}
+
+class id2{
+    int ab(int[][] a, id[] a, id2 b){}
+    int cd(int[][] a, id[] a, id2 b){}
 }

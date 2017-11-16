@@ -7,11 +7,6 @@
 - Enable error checking in Bison
 - Method overloading?
 
-
 Victory lap:
 - Implement error type in tablemanager for more verbose failure
 - Make tables print in order
-
-
-
-List of classes that create vars

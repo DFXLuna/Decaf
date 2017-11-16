@@ -48,6 +48,10 @@ public:
     bool resolveForwardGlobalTypeTable( string name, int width );
     void dump();
 
+    // verifies array types in method param lists before adding them to table
+    bool verifyTypes( vector<string> types );
+    void addTypes( vector<string> types );
+
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;

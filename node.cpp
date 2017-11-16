@@ -298,7 +298,7 @@ TypeNode::TypeNode( Node* t, Node* brackets ): Node( t, brackets ){}
 
 bool TypeNode::getID( string& result ){
     string temp;
-    // t type always goes to int
+    // type always goes to int
     if(left){ temp = "int"; }
     else{ return false; }
     if(right){ 
@@ -360,16 +360,23 @@ void MethodDecNode::populateTables( TableManager* tm ){
    if(left){ 
         string type;
         string id;
-        if(left->getTypeID(type, id)){
+        if(left->getTypeID( type, id )){
             // Since type always goes to int, this only allows 
             // array types to be registered
-            tm->forwardEntryGlobalTypeTable(type);
+            tm->forwardEntryGlobalTypeTable( type );
             vector<string> types;
             vector<string> ids;
             if(right){ right->gatherParams( types, ids ); }
-            else{
-                cout << "Error: malformed syntax tree" << endl;
+            else{ cout << "Error: malformed syntax tree" << endl; }
+            if( tm->verifyTypes( types ) ){
+                tm->addTypes( types );
             }
+            if(!tm->addMethDecl( id, types, type )){ 
+                cout << "Error: Cannot add '" << id << "' to symbol table."
+                     << endl;
+            }
+            if(block){/* block->populateTables( tm ); */}
+            else{ cout << "Error: Malformed syntax tree" << endl; }
         } 
    }     
 }
@@ -398,6 +405,10 @@ VoidMethodDecNode::~VoidMethodDecNode(){
     delete block;
 }
 
+void VoidMethodDecNode::populateTables( TableManager* tm ){
+    cout << "In VMDN populateTables" << endl;
+}
+
 void VoidMethodDecNode::print(){
     cout << "<methdecl> -> void ID ( <plist> ) <block>" << endl;
 
@@ -416,6 +427,10 @@ Node* block ): Node( id, plist ){
 IDMethodDecNode::~IDMethodDecNode(){
     delete block;
     delete result;
+}
+
+void IDMethodDecNode::populateTables( TableManager* tm ){
+    cout << "In IDMDN populateTables" << endl;
 }
 
 void IDMethodDecNode::print(){
@@ -478,9 +493,11 @@ bool ParameterNode::gatherParams( vector<string>& types, vector<string>& ids ){
     string id;
     if(!left || !left->getID(type)){ return false; }
     if(!right || !right->getID(id)){ return false; }
-    // This is safe because the only type this node deals with is int
     types.push_back(type);
     ids.push_back(id);
+
+    if(next){ return next->gatherParams(types, ids); }
+    return true;
 }
 
 void ParameterNode::print(){
@@ -504,6 +521,25 @@ Node( type, id ){
 ParameterIDNode::~ParameterIDNode(){
     delete mb;
     delete next;
+}
+
+bool ParameterIDNode::gatherParams( vector<string>& types, vector<string>& ids ){
+    string type;
+    string id;
+    if(!left || !left->getID(type)){ return false; }
+    if(mb){
+        // Add brackets to type, plist node will check for valid type
+        int b = mb->gatherBrackets();
+        for(int i = 0; i < b; i++){
+            type += "[]";
+        }
+    }
+    if(!right || !right->getID(id)){ return false; }
+    types.push_back(type);
+    ids.push_back(id);
+
+    if(next){ return next->gatherParams(types, ids); }
+    return true;
 }
 
 void ParameterIDNode::print(){
