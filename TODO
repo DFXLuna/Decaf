@@ -1,5 +1,6 @@
 - Somehow coerece the tree into typechecking itself
     - Condecls
+        -Verify constructor has class name
     - Fix method overloading?
     - Type check
 

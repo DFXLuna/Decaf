@@ -7,7 +7,7 @@
 so it isn't supported. This might change because of constructors.
 
 - During the table dump, constructors are listed just like methods
-and they list a return type of void. 
+and they list a return type of void.
 
 - Arrays on types are stored as types, so they show up in the global type 
 table.

@@ -177,7 +177,8 @@ ConDeclsNode::ConDeclsNode( Node* condecl, Node* next ):
 Node( condecl, next ){}
 
 void ConDeclsNode::populateTables( TableManager* tm ){
-    cout << "In condecls!" << endl;
+    if(right){ right->populateTables(tm); }
+    if(left){ left->populateTables(tm); }
 }
 
 void ConDeclsNode::print(){
@@ -339,6 +340,32 @@ void SimpleTypeNode::print(){
 ConstructorDecNode::ConstructorDecNode( Node* id, Node* plist, Node* block ):
 Node( id, plist ){
     this->block = block;
+}
+
+void ConstructorDecNode::populateTables( TableManager* tm ){
+   if(left){ 
+        string id;
+        if(left->getID( id )){
+            // Process params
+            vector<string> types;
+            vector<string> ids;
+            if(right){ right->gatherParams( types, ids ); }
+            else{ cout << "Error: malformed syntax tree" << endl; }
+            if( tm->verifyTypes( types ) ){
+                tm->addTypes( types );
+            }
+            if(!tm->addMethDecl( id, types, "void" )){ 
+                cout << "Error: Cannot add '" << id << "' to symbol table."
+                     << endl;
+            }
+            string scope = tm->getCurrentScope();
+            scope += ("::" + id);
+            tm->enterScope(scope);
+            if(block){ block->populateTables( tm ); }
+            else{ cout << "Error: Malformed syntax tree" << endl; }
+            tm->exitScope();
+        } 
+   }  
 }
 
 ConstructorDecNode::~ConstructorDecNode(){

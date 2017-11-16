@@ -1,9 +1,9 @@
-class id {
+class type {
     abc( type id, int abc, int[][][] abc ){
         int a;
         type b;
-        int[][] a;
-        type[][] b;
+        int[][] c;
+        type[][] d;
     }
 }
 class abc {
@@ -12,8 +12,8 @@ class abc {
     abc id(int a, type b, int[] a, type b){
         int a;
         type b;
-        int[] a;
-        type[] b;
+        int[] c;
+        type[] d;
     }
 }
 class def {}

@@ -148,6 +148,7 @@ public:
 class ConstructorDecNode : public Node {
 public:
     ConstructorDecNode( Node* id = 0, Node* plist = 0, Node* block = 0 );
+    void populateTables( TableManager* tm );
     ~ConstructorDecNode();
     void print();
 private:
