@@ -21,14 +21,21 @@ int main(int argc, char* argv[]){
 
     for( unsigned int i = 0; i < tree.size(); i++ ){
         if( tree[i]->registerType( &t ) == false ){
+            cout << "Error: Type registration failed, typechecking "
+            << "will not commence." << endl;
             typeCheck = false;
         }
     }
 
     if(typeCheck){
+        // Register all var declarations
         for( unsigned int i = 0; i < tree.size(); i++ ){
             tree[i]->populateTables( &t );
         }
+        // Type check
+        for( unsigned int i = 0; i < tree.size(); i++ ){
+            tree[i]->typeCheck( &t );
+        } 
     }
 
     t.dump();

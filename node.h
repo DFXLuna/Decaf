@@ -35,6 +35,8 @@ public:
     bool virtual checkConstructorNames();
 
     bool virtual passConstructorNames( string name );
+
+    bool virtual typeCheck( TableManager* tm );
 protected:
     Node* left;
     Node* right;

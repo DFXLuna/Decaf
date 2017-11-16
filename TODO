@@ -1,10 +1,7 @@
 - Somehow coerece the tree into typechecking itself
-    - Condecls
-        -Verify constructor has class name
-    - Fix method overloading?
     - Type check
-
 - Enable error checking in Bison
+- Fix method overloading?
 
 Victory lap:
 - Implement error type in tablemanager for more verbose failure

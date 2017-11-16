@@ -69,6 +69,11 @@ int Node::gatherBrackets(){
     return -1;
 }
 
+bool Node::typeCheck( TableManager* tm ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
 /////////////////////////////////////////
 
 IdNode::IdNode( string v ): Node( 0, 0 ){
