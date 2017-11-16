@@ -1,5 +1,5 @@
 - Somehow coerece the tree into typechecking itself
-    - Add methods to tables
+    - Methdecl blocks
     - Condecls
     - Fix method overloading?
     - follow scope
