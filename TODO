@@ -1,8 +1,9 @@
 - Somehow coerece the tree into typechecking itself
     - Methdecl blocks
+        - Make sure entire program adhears to scope rules
     - Condecls
     - Fix method overloading?
-    - follow scope
+    - follow scope -> naming tables?
     - Type check
 
 - Enable error checking in Bison

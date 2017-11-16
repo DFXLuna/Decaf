@@ -380,8 +380,10 @@ void MethodDecNode::populateTables( TableManager* tm ){
                 cout << "Error: Cannot add '" << id << "' to symbol table."
                      << endl;
             }
-            if(block){/* block->populateTables( tm ); */}
+            tm->enterScope();
+            if(block){ block->populateTables( tm ); }
             else{ cout << "Error: Malformed syntax tree" << endl; }
+            tm->exitScope();
         } 
    }     
 }
@@ -422,8 +424,10 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        if(block){/* block->populateTables( tm ); */}
+        tm->enterScope();
+        if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
+        tm->exitScope();
    }     
 }
 
@@ -465,8 +469,11 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        if(block){/* block->populateTables( tm ); */}
+        tm->enterScope();
+        if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
+        tm->exitScope();
+
    }
 }
 
@@ -653,6 +660,11 @@ void ReturnStatementNode::print(){
 BlockNode::BlockNode( Node* localvars, Node* stmts ):
 Node( localvars, stmts ){}
 
+void BlockNode::populateTables( TableManager* tm ){
+    if(left){ left->populateTables( tm ); }
+    // Statements aren't needed to populate table
+}
+
 void BlockNode::print(){
     cout << "<block> -> { ";
     if(left){ cout << "<localvars>"; }
@@ -666,6 +678,12 @@ void BlockNode::print(){
 
 LocalVarsNode::LocalVarsNode( Node* localvar, Node* next ):
 Node( localvar, next ){}
+
+void LocalVarsNode::populateTables( TableManager* tm ){
+    // Might need to reverse
+    if(left){ left->populateTables( tm ); }
+    if(right){ right->populateTables( tm ); }
+}
 
 void LocalVarsNode::print(){
     cout << "<localvars> -> <localvar>";
@@ -692,6 +710,21 @@ void StatementsNode::print(){
 // Local Var Nodes
 LocalVarDecNode::LocalVarDecNode( Node* type, Node* id ): Node( type, id ){}
 
+void LocalVarDecNode::populateTables( TableManager* tm ){
+    string type;
+    string id;
+
+    if(left){ left->getID(type); }
+    else{ cout << "Error: Malformed Syntax Tree" << endl; }
+    // this node only handles int types
+    tm->forwardEntryGlobalTypeTable(type);
+    
+    if(right){ right->getID(id); }
+    else{ cout << "Error: Malformed Syntax Tree" << endl; }
+    
+    tm->addTypeInst(type, id);
+}
+
 void LocalVarDecNode::print(){
     cout << "<localvar> -> <type> id;" << endl;
 
@@ -704,6 +737,32 @@ void LocalVarDecNode::print(){
 LocalVarDecIDNode::LocalVarDecIDNode( Node* type, Node* id, Node* mb ):
 Node( type, id ){
     this->mb = mb;
+}
+
+void LocalVarDecIDNode::populateTables( TableManager* tm ){
+    string type;
+    string id;
+
+    if(left){ left->getID(type); }
+    else{ cout << "Error: malformed syntax tree" << endl; }
+    if(right){ right->getID(id); }
+    else{ cout << "Error: malformed syntax tree" << endl; }
+
+    TypeDecl* temp = 0;
+    if( tm->tryLookup(type, temp) ){
+        // Create array type and add to table
+        if(mb){
+            int b = mb->gatherBrackets();
+            for(int i = 0; i < b; i++){
+                type += "[]";
+            }
+            tm->forwardEntryGlobalTypeTable(type);
+        }
+        tm->addTypeInst(type, id);
+    }
+    else{
+        cout << "Error: Invalid type '" << id << "'" << endl;
+    }
 }
 
 LocalVarDecIDNode::~LocalVarDecIDNode(){

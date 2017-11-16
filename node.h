@@ -247,6 +247,7 @@ private:
 class BlockNode : public Node {
 public:
     BlockNode( Node* localvars = 0, Node* stmts = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
@@ -255,6 +256,7 @@ public:
 class LocalVarsNode : public Node {
 public:
     LocalVarsNode( Node* localvar = 0, Node* next = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
@@ -271,6 +273,7 @@ public:
 class LocalVarDecNode : public Node {
 public:
     LocalVarDecNode( Node* type = 0, Node* id = 0 );
+    void populateTables( TableManager* tm );
     void print();
 };
 
@@ -278,6 +281,7 @@ class LocalVarDecIDNode : public Node {
 public:
     LocalVarDecIDNode( Node* type = 0, Node* id = 0, Node* mb = 0 );
     ~LocalVarDecIDNode();
+    void populateTables( TableManager* tm );
     void print();
 private:
     Node* mb;

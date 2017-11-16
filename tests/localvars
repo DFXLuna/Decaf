@@ -1,8 +1,17 @@
 class id {
-    abc( type id, int abc, int[][][] abc ){
+    void a( id a, int b, int[][][] abc ){
         int a;
-        type b;
-        int[][] a;
-        type[][] b;
+        id b;
+        int[][] c;
+        id[][] d;
+    }
+}
+
+class ab {
+    void a( id a, int b, int[][][] abc ){
+        int abc;
+        id b;
+        int[][] c;
+        id[][] d;
     }
 }
