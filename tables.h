@@ -21,7 +21,7 @@ class TableManager{
 public:
     TableManager();
     ~TableManager();
-    void enterScope();
+    void enterScope( string name );
     void exitScope();
 
     // These could probably have the same name
@@ -52,6 +52,8 @@ public:
     bool verifyTypes( vector<string> types );
     void addTypes( vector<string> types );
 
+    string getCurrentScope();
+
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
@@ -63,7 +65,7 @@ private:
 
 class Table{
 public:
-    Table( Table* parent );
+    Table( Table* parent, string name );
     ~Table();
     // If successful, result points to an entry in the type instance tree  and
     // returns true
@@ -78,6 +80,7 @@ public:
                       TypeDecl* returnType, bool forwardDecl = true );
     
     Table* getParent();
+    string getName();
     void registerChild( Table* child );
 
     void print( int indent );
@@ -87,6 +90,7 @@ private:
     map<string, MethDecl> methTable;
     // Needed for dumping table and freeing memory
     vector<Table*> children;
+    string name;
 };
 
 class GlobalTypeTable {

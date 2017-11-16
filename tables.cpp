@@ -11,7 +11,7 @@ TableManager::TableManager(){
     resolveForwardGlobalTypeTable("int", 4);
 
    // Add the global scope
-   enterScope(); 
+   enterScope( "Global" ); 
 }
 
 TableManager::~TableManager(){
@@ -25,8 +25,8 @@ TableManager::~TableManager(){
     delete voidType;
 }
 
-void TableManager::enterScope(){
-    Table* newScope = new Table( currTable );
+void TableManager::enterScope( string name ){
+    Table* newScope = new Table( currTable, name );
     if(currTable != 0 ){
         currTable->registerChild( newScope );
     }
@@ -166,6 +166,16 @@ void TableManager::addTypes( vector<string> types ){
     }
 }
 
+string TableManager::getCurrentScope(){
+    if(currTable != 0){
+        return currTable->getName();
+    }
+    else{
+        // shouldn't ever happen
+        return "Global";
+    }
+}
+
 void TableManager::dump(){
     if( globalTypeTable != 0 ){
         globalTypeTable->print();
@@ -217,7 +227,8 @@ void GlobalTypeTable::print(){
 }
 
 /////////////////////////////////////////
-Table::Table( Table* parent ){
+Table::Table( Table* parent, string name ){
+    this->name = name;
     this->parent = parent;
 }
 
@@ -291,13 +302,17 @@ Table* Table::getParent(){
     return parent;
 }
 
+string Table::getName(){
+    return name;
+}
+
 void Table::registerChild( Table* c ){
     children.push_back(c);
 }
 
 void Table::print( int indent ){
     for(int i = 0; i < indent; i++){ cout << "  "; }
-    cout << "Table" << endl;
+    cout << getName() << endl;
     for( map<string, TypeInst>::iterator it = typeTable.begin();
     it != typeTable.end(); it++){
         for(int i = 0; i < indent; i++){ cout << "  "; }

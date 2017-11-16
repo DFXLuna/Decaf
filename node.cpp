@@ -112,7 +112,10 @@ bool ClassDecNode::registerType( TableManager* tm ){
 }
 
 void ClassDecNode::populateTables( TableManager* tm ){
-    tm->enterScope();
+    string name;
+    if(!right->getID(name)){ cout << "Error: Malformed syntax tree" << endl; }
+    name = tm->getCurrentScope() + "::" + name;
+    tm->enterScope(name);
     if(left){ left->populateTables(tm); }
     tm->exitScope();
 }
@@ -380,7 +383,9 @@ void MethodDecNode::populateTables( TableManager* tm ){
                 cout << "Error: Cannot add '" << id << "' to symbol table."
                      << endl;
             }
-            tm->enterScope();
+            string scope = tm->getCurrentScope();
+            scope += ("::" + id);
+            tm->enterScope(scope);
             if(block){ block->populateTables( tm ); }
             else{ cout << "Error: Malformed syntax tree" << endl; }
             tm->exitScope();
@@ -424,7 +429,9 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        tm->enterScope();
+        string scope = tm->getCurrentScope();
+        scope += ("::" + id);
+        tm->enterScope(scope);
         if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
         tm->exitScope();
@@ -469,11 +476,12 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        tm->enterScope();
+        string scope = tm->getCurrentScope();
+        scope += ("::" + id);
+        tm->enterScope(scope);
         if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
         tm->exitScope();
-
    }
 }
 
