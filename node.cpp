@@ -356,6 +356,10 @@ Node( tid, plist  ){
     this->block = block;
 }
 
+MethodDecNode::~MethodDecNode(){
+    delete block;
+}
+
 void MethodDecNode::populateTables( TableManager* tm ){
    if(left){ 
         string type;
@@ -364,6 +368,7 @@ void MethodDecNode::populateTables( TableManager* tm ){
             // Since type always goes to int, this only allows 
             // array types to be registered
             tm->forwardEntryGlobalTypeTable( type );
+            // Process params
             vector<string> types;
             vector<string> ids;
             if(right){ right->gatherParams( types, ids ); }
@@ -379,10 +384,6 @@ void MethodDecNode::populateTables( TableManager* tm ){
             else{ cout << "Error: Malformed syntax tree" << endl; }
         } 
    }     
-}
-
-MethodDecNode::~MethodDecNode(){
-    delete block;
 }
 
 void MethodDecNode::print(){
@@ -406,7 +407,24 @@ VoidMethodDecNode::~VoidMethodDecNode(){
 }
 
 void VoidMethodDecNode::populateTables( TableManager* tm ){
-    cout << "In VMDN populateTables" << endl;
+    if(left){ 
+        string id;
+        if(!left->getID(id)){ cout << "Error: malformed syntax tree"; }
+        // Process params
+        vector<string> types;
+        vector<string> ids;
+        if(right){ right->gatherParams( types, ids ); }
+        else{ cout << "Error: malformed syntax tree" << endl; }
+        if( tm->verifyTypes( types ) ){
+            tm->addTypes( types );
+        }
+        if(!tm->addMethDecl( id, types, "void" )){ 
+            cout << "Error: Cannot add '" << id << "' to symbol table."
+                    << endl;
+        }
+        if(block){/* block->populateTables( tm ); */}
+        else{ cout << "Error: Malformed syntax tree" << endl; }
+   }     
 }
 
 void VoidMethodDecNode::print(){
@@ -430,7 +448,26 @@ IDMethodDecNode::~IDMethodDecNode(){
 }
 
 void IDMethodDecNode::populateTables( TableManager* tm ){
-    cout << "In IDMDN populateTables" << endl;
+   if(left){ 
+        string id;
+        string retType;
+        if(!left->getID(id)){ cout << "Error: malformed syntax tree" << endl; }
+        if(!result->getID(retType)){ cout << "Error: malformed syntax tree" << endl; }
+        // Process params
+        vector<string> types;
+        vector<string> ids;
+        if(right){ right->gatherParams( types, ids ); }
+        else{ cout << "Error: malformed syntax tree" << endl; }
+        if( tm->verifyTypes( types ) ){
+            tm->addTypes( types );
+        }
+        if(!tm->addMethDecl( id, types, retType )){ 
+            cout << "Error: Cannot add '" << id << "' to symbol table."
+                    << endl;
+        }
+        if(block){/* block->populateTables( tm ); */}
+        else{ cout << "Error: Malformed syntax tree" << endl; }
+   }
 }
 
 void IDMethodDecNode::print(){

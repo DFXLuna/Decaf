@@ -1,8 +1,10 @@
 class id {
-    int id(){}
+    void id(){}
 }
 
 class id2{
-    int ab(int[][] a, id[] a, id2 b){}
+    void ab(int[][] a, id[] a, id2 b){}
     int cd(int[][] a, id[] a, id2 b){}
+    id ef(){}
+    id2 gh(int a, id[] a, id2 b){}
 }

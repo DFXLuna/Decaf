@@ -1,11 +1,11 @@
 - Somehow coerece the tree into typechecking itself
     - Add methods to tables
-        - Finish implementing plist
+    - Condecls
+    - Fix method overloading?
     - follow scope
     - Type check
 
 - Enable error checking in Bison
-- Method overloading?
 
 Victory lap:
 - Implement error type in tablemanager for more verbose failure
