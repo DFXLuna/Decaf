@@ -154,7 +154,15 @@ void ClassDecNode::populateTables( TableManager* tm ){
     // Populate table
     tm->enterScope(name);
     if(left){ left->populateTables(tm); }
+    else{ cout << "Error: Malformed syntax tree" << endl; }
     tm->exitScope();
+}
+
+bool ClassDecNode::typeCheck( TableManager* tm ){
+    if(left && left->typeCheck( tm )){
+        return true;
+    }
+    return false;
 }
 
 /////////////////////////////////////////
@@ -179,6 +187,23 @@ void ClassBodyNode::populateTables( TableManager* tm ){
     if(left){ left->populateTables( tm ); }
     if(right){ right->populateTables( tm ); }
     if(methdecls){ methdecls->populateTables( tm ); }
+}
+
+bool ClassBodyNode::typeCheck( TableManager* tm ){
+    // Variable declarations don't need type checking
+    // Returning has to be delayed to allow everything to get type checked
+    bool toRet = true
+    if(right){
+        if(!right->typeCheck(tm)){
+            toRet = false;
+        }
+    }
+    if(methdecls){
+        if(!methdecls->typeCheck(tm)){
+            toRet =  false;
+        }
+    }
+    return toRet;
 }
 
 void ClassBodyNode::print(){
@@ -235,6 +260,22 @@ void ConDeclsNode::populateTables( TableManager* tm ){
     if(left){ left->populateTables(tm); }
 }
 
+bool ConDeclsNode::typeCheck( TableManager* tm ){
+    // These if statements are different to imply that right doesn't have
+    // to exist but left must exist.
+    // Returning must be delayed to allow all decls to be processed
+    bool toRet = true;
+    if(right){
+        if(!right->typeCheck(tm)){
+            toRet = false;
+        }
+    }
+    if(!left || !left->typeCheck(tm)){
+        toRet = false;
+    }
+    return toRet;
+}
+
 void ConDeclsNode::print(){
     cout << "<condecls> -> ";
     if(right){
@@ -255,6 +296,22 @@ Node( methdecl, next ){}
 void MethDeclsNode::populateTables( TableManager* tm ){
     if(right){ right->populateTables(tm); }
     if(left){ left->populateTables(tm); } 
+}
+
+bool MethDeclsNode::typeCheck( TableManager* tm ){
+    // These if statements are different to imply that right doesn't have
+    // to exist but left must exist.
+    // Returning must be delayed to allow all decls to be processed
+    bool toRet = true;
+    if(right){
+        if(!right->typeCheck(tm)){
+            toRet = false;
+        }
+    }
+    if(!left || !left->typeCheck(tm)){
+        toRet = false;
+    }
+    return toRet;
 }
 
 void MethDeclsNode::print(){
@@ -434,6 +491,13 @@ void ConstructorDecNode::populateTables( TableManager* tm ){
             tm->exitScope();
         } 
    }  
+}
+
+bool ConstructorDecNode::typeCheck( TableManager* tm ){
+    if( !block || !block->typeCheck(tm)){
+        return false;
+    }
+    return true;
 }
 
 ConstructorDecNode::~ConstructorDecNode(){
@@ -768,6 +832,16 @@ void BlockNode::populateTables( TableManager* tm ){
     // Statements aren't needed to populate table
 }
 
+bool BlockNode::typeCheck( TableManager* tm ){
+    // Vardecls don't need to be typechecked
+    if(right){
+        if(!right->typeCheck(tm)){
+            return false;
+        }
+    }
+    return true;
+}
+
 void BlockNode::print(){
     cout << "<block> -> { ";
     if(left){ cout << "<localvars>"; }
@@ -800,6 +874,20 @@ void LocalVarsNode::print(){
 ////
 
 StatementsNode::StatementsNode( Node* stmt, Node* next ): Node( stmt, next ){}
+
+bool StatementsNode::typeCheck( TableManager* tm ){
+    bool toRet = true;
+    if(right){
+        if(!right->typeCheck(tm)){
+            toRet = false;
+        }
+    }
+    if(!left || !left->typeCheck(tm)){
+        toRet = false;
+    }
+    return toRet;
+}
+
 void StatementsNode::print(){
     cout << "<stmts> -> <stmt>";
     if(right){ cout << " <stmts>"; }

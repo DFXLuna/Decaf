@@ -3,8 +3,7 @@
  or
  "name: () -> returnType" for functions with no parameters
 
-- The directions don't say that we support method overloading, 
-so it isn't supported. This might change because of constructors.
+- Method and constructor overloading isn't currently supported yet.
 
 - During the table dump, constructors are listed just like methods
 and they list a return type of void.
@@ -14,3 +13,5 @@ table.
 
 - I wasn't paying very close attention to where I output error messages so 
 one error in the program may cause up to 5 - 10 error messages to appear.
+
+I'm starting to wonder if I went overboard with the object oriented stuff.

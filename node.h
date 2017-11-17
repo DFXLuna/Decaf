@@ -66,6 +66,7 @@ public:
     bool registerType( TableManager* tm );
     bool checkConstructorNames();
     void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
 };
 
 /////////////////////////////////////////
@@ -77,6 +78,7 @@ public:
     ~ClassBodyNode();
     bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 private:
     Node* methdecls;
@@ -98,6 +100,7 @@ public:
     ConDeclsNode( Node* condecl = 0 , Node* next = 0 );
     bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -105,6 +108,7 @@ class MethDeclsNode : public Node {
 public:
     MethDeclsNode( Node* methdecl = 0 , Node* next = 0 );
     void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -158,9 +162,10 @@ public:
 class ConstructorDecNode : public Node {
 public:
     ConstructorDecNode( Node* id = 0, Node* plist = 0, Node* block = 0 );
+    ~ConstructorDecNode();
     bool passConstructorNames( string name );
     void populateTables( TableManager* tm );
-    ~ConstructorDecNode();
+    bool typeCheck( TableManager* tm );
     void print();
 private:
     Node* block;
@@ -260,6 +265,7 @@ class BlockNode : public Node {
 public:
     BlockNode( Node* localvars = 0, Node* stmts = 0 );
     void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -277,6 +283,7 @@ public:
 class StatementsNode : public Node {
 public:
     StatementsNode( Node* stmt = 0, Node* next = 0);
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
