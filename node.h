@@ -176,8 +176,9 @@ private:
 class MethodDecNode : public Node {
 public:
     MethodDecNode( Node* tid = 0, Node* plist = 0, Node* block = 0 );
-    void populateTables( TableManager* tm );
     ~MethodDecNode();
+    void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 private:
     Node* block;
@@ -188,8 +189,9 @@ private:
 class VoidMethodDecNode : public Node {
 public:
     VoidMethodDecNode( Node* id = 0, Node* plist = 0, Node* block = 0 );
-    void populateTables( TableManager* tm );
     ~VoidMethodDecNode();
+    void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 
 private:
@@ -201,8 +203,9 @@ class IDMethodDecNode : public Node {
 public:
     IDMethodDecNode( Node* result = 0, Node* id = 0, 
     Node* plist = 0, Node* block = 0 );
-    void populateTables( TableManager* tm );
     ~IDMethodDecNode();
+    void populateTables( TableManager* tm );
+    bool typeCheck( TableManager* tm );
     void print();
 private:
     Node* result;

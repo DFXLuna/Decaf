@@ -13,5 +13,3 @@ table.
 
 - I wasn't paying very close attention to where I output error messages so 
 one error in the program may cause up to 5 - 10 error messages to appear.
-
-I'm starting to wonder if I went overboard with the object oriented stuff.

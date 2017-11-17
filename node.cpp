@@ -552,6 +552,13 @@ void MethodDecNode::populateTables( TableManager* tm ){
    }     
 }
 
+bool MethodDecNode::typeCheck(  TableManager* tm ){
+    if( !block || !block->typeCheck(tm) ){
+        return false;
+    }
+    return true;
+}
+
 void MethodDecNode::print(){
     cout << "<methdecl> -> <typeid> ( <plist> ) <block>" << endl;
     
@@ -596,6 +603,14 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
         tm->exitScope();
    }     
 }
+
+bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
+    if( !block || !block->typeCheck(tm) ){
+        return false;
+    }
+    return true;
+}
+
 
 void VoidMethodDecNode::print(){
     cout << "<methdecl> -> void ID ( <plist> ) <block>" << endl;
@@ -643,6 +658,14 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         tm->exitScope();
    }
 }
+
+bool IDMethodDecNode::typeCheck(  TableManager* tm ){
+    if( !block || !block->typeCheck(tm) ){
+        return false;
+    }
+    return true;
+}
+
 
 void IDMethodDecNode::print(){
     cout << "<methdecl> -> ID ID ( <plist> ) <block>" << endl;
