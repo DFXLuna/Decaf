@@ -1045,7 +1045,9 @@ void LocalVarDecIDNode::print(){
 ThisNode::ThisNode(): Node ( 0, 0 ){}
 
 bool ThisNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    // Use tablemanager this resolution
+    if( tm->tryResolveThis( result ) ){
+        return true;
+    }
     return false;
 
 }
@@ -1087,6 +1089,30 @@ NameDotIdNode::NameDotIdNode( Node* name, Node* Id ): Node( name, Id ){}
 
 bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     // Use table manager Name resolution. Resolve on type from name node
+    TypeDecl* name = 0;
+    if(!left){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if(!left->tryGetType(tm, name) ){
+        cout << "Error: cannot resolve name" << endl;
+        return false;
+    }
+    string typeName = name->getName();
+    
+    // Find table corresponding to type from tryGetType
+    if(!right){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    string ID;
+    if(!right->getID(ID)){
+        cout << "Error: malformed sytnax tree" << endl;
+        return false;
+    }
+    if( tm->searchLocalTable(typeName, ID, result) ){
+        return true;
+    }
     return false;
 }
 

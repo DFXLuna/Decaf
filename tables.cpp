@@ -188,9 +188,35 @@ bool TableManager::tryResolveThis( TypeDecl* result ){
     string temp = currTable->getName();
     temp = temp.substr(8);
     if(tryLookup(temp, result)){
+        currTable = currScope;
         return true;
     }
+    currTable = currScope;
     return false;
+}
+
+bool TableManager::searchLocalTable( string tableName, string varid, TypeDecl*& result ){
+    // Find table
+    Table* currScope = currTable;
+    string qualifiedTableName = "Global::" + tableName;
+    while( currTable->getParent() != 0 ){
+        currTable = currTable->getParent();
+    }
+    Table* localTable = 0;
+    vector<Table*> c = currTable->getChildren();
+    for(unsigned int i = 0; i < c.size(); i++){
+        if(c[i]->getName() == qualifiedTableName ){
+            localTable = c[i];
+            break;
+        }
+    }
+    // search for varid
+    if( !localTable || !localTable->localSearch(varid, result) ){
+        currTable = currScope;
+        return false;
+    }
+    currTable = currScope;
+    return true;
 }
 
 void TableManager::dump(){
@@ -325,6 +351,21 @@ string Table::getName(){
 
 void Table::registerChild( Table* c ){
     children.push_back(c);
+}
+
+vector<Table*> Table::getChildren(){
+    return children;
+}
+
+bool Table::localSearch( string varid, TypeDecl*& result ){
+    map<string, TypeInst>::iterator it;
+    if( (it = typeTable.find(varid)) != typeTable.end() ){
+        TypeInst* temp = 0;
+        temp = &(it->second);
+        result = temp->getType();
+        return true;
+    }
+    return false;
 }
 
 void Table::print( int indent ){

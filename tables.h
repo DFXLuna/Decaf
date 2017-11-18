@@ -58,6 +58,9 @@ public:
     // of the current class's type
     bool tryResolveThis( TypeDecl* result );
 
+    // finds table 'name' and searches only it for the var named id
+    bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
+
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
@@ -85,8 +88,12 @@ public:
     
     Table* getParent();
     string getName();
-    void registerChild( Table* child );
 
+    void registerChild( Table* child );
+    vector<Table*> getChildren();
+
+    // Searches only this table
+    bool localSearch( string varid, TypeDecl*& result );
     void print( int indent );
 private:
     Table* parent;

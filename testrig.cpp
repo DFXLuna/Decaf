@@ -66,7 +66,7 @@ void basicTests(){
     ///////////////////////////////////////////////////
     // TypeInst tests
     // Basic Insert test
-    t.enterScope("BIT");
+    t.enterScope("Global::BIT");
     if(t.addTypeInst("TypeA", "VarA")){
         cout << "BIT test passed" << endl;
     }
@@ -85,7 +85,7 @@ void basicTests(){
 
     // Parent Lookup test
     vara = 0;
-    t.enterScope("PLT");
+    t.enterScope("Global::BIT::PLT");
     if(t.tryLookup("VarA", vara) && vara->getName() == "VarA"){
         cout << "PLT test passed" << endl;
     }
@@ -95,7 +95,7 @@ void basicTests(){
 
     //2 Parents
     vara = 0;
-    t.enterScope("2LT");
+    t.enterScope("Global::BIT::PLT::2LT");
     if(t.tryLookup("VarA", vara) && vara->getName() == "VarA"){
         cout << "2LT test passed" << endl;
     }
@@ -137,7 +137,7 @@ void basicTests(){
     }
 
     // Parent Table Lookup test
-    t.enterScope("PTL");
+    t.enterScope("Global::BIT::PTL");
     metha = 0;
     if( t.tryLookup("MethA", metha) && metha != 0 ){
         cout << "PTL test passed" << endl;
@@ -202,6 +202,15 @@ void basicTests(){
     }
     else {
         cout << "TRT test failed---" << endl;
+    }
+
+    // local Search test
+    TypeDecl* lst = 0;
+    if(t.searchLocalTable( "BIT", "VarA", lst ) && lst){
+        cout << "LST test passed" << endl;
+    }
+    else{
+        cout << "LST test failed---" << endl;
     }
 
     t.dump();
