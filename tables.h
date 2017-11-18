@@ -54,6 +54,10 @@ public:
 
     string getCurrentScope();
 
+    // Resolves the keyword 'this' and returns a pointer to the type
+    // of the current class's type
+    bool tryResolveThis( TypeDecl* result );
+
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;

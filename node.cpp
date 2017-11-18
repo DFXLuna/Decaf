@@ -197,7 +197,7 @@ void ClassBodyNode::populateTables( TableManager* tm ){
 bool ClassBodyNode::typeCheck( TableManager* tm ){
     // Variable declarations don't need type checking
     // Returning has to be delayed to allow everything to get type checked
-    bool toRet = true
+    bool toRet = true;
     if(right){
         if(!right->typeCheck(tm)){
             toRet = false;
@@ -810,41 +810,42 @@ EQStatementNode::EQStatementNode( Node* name, Node* expr ):
 Node( name, expr ){}
 
 bool EQStatementNode::typeCheck( TableManager* tm ){
-    bool toRet = true;
-    TypeDecl* nameType = 0;
-    TypeDecl* exprType = 0;
-    if( !left || !right ){ 
-        cout << "Error: malformed syntax tree" << endl;
-        return false;
-    }
-    if(left->tryGetType(nameType) && right->tryGetType(exprType)){
-        // Do comparison
-        if(nameType == exprType){
-            return true;
-        }
-        else{
-            string name;
-            if(left->getID(name)){
-                cout << "Error: Invalid assignment to symbol '" 
-                << name << "'." << endl;
-            }
-            else{
-                cout << "Error: malformed syntax tree" << endl;
-            }
-            return false;
-        }
-    }
-    else{
-        string name;
-        if(left->getID(name)){
-            cout << "Symbol '" << name 
-            << "' is used before it is defined." << endl;
-        }
-        else{
-            cout << "Error: malformed syntax tree" << endl;
-        }
-        return false;
-    }
+    return false;
+    // bool toRet = true;
+    // TypeDecl* nameType = 0;
+    // TypeDecl* exprType = 0;
+    // if( !left || !right ){ 
+    //     cout << "Error: malformed syntax tree" << endl;
+    //     return false;
+    // }
+    // if(left->tryGetType(nameType) && right->tryGetType(exprType)){
+    //     // Do comparison
+    //     if(nameType == exprType){
+    //         return true;
+    //     }
+    //     else{
+    //         string name;
+    //         if(left->getID(name)){
+    //             cout << "Error: Invalid assignment to symbol '" 
+    //             << name << "'." << endl;
+    //         }
+    //         else{
+    //             cout << "Error: malformed syntax tree" << endl;
+    //         }
+    //         return false;
+    //     }
+    // }
+    // else{
+    //     string name;
+    //     if(left->getID(name)){
+    //         cout << "Symbol '" << name 
+    //         << "' is used before it is defined." << endl;
+    //     }
+    //     else{
+    //         cout << "Error: malformed syntax tree" << endl;
+    //     }
+    //     return false;
+    // }
 }
 
 void EQStatementNode::print(){
@@ -1045,6 +1046,7 @@ ThisNode::ThisNode(): Node ( 0, 0 ){}
 
 bool ThisNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     // Use tablemanager this resolution
+    return false;
 
 }
 
@@ -1062,13 +1064,16 @@ bool NameIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     if(left && left->getID(id)){
         if(tm->tryLookup(id, temp)){
             result = temp->getType();
+            return true;
         }
         else{
             cout << "Error: symbol '" << id << "' undefined." << endl;
+            return false;
         }
     }
     else{
         cout << "Error: Malformed syntax tree" << endl;
+        return false;
     }
 }
 
@@ -1081,7 +1086,8 @@ void NameIdNode::print(){
 NameDotIdNode::NameDotIdNode( Node* name, Node* Id ): Node( name, Id ){}
 
 bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    // Use table manager Name resolution
+    // Use table manager Name resolution. Resolve on type from name node
+    return false;
 }
 
 void NameDotIdNode::print(){
@@ -1096,6 +1102,7 @@ NameExprNode::NameExprNode( Node* name, Node* expr ): Node( name, expr ){}
 
 bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     // check expr type then check name type
+    return false;
 }
 
 void NameExprNode::print(){

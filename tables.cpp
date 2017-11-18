@@ -172,8 +172,25 @@ string TableManager::getCurrentScope(){
     }
     else{
         // shouldn't ever happen
-        return "Global";
+        return "-1";
     }
+}
+
+bool TableManager::tryResolveThis( TypeDecl* result ){
+    // Save current scope, then navigate to the class scope level
+    Table* currScope = currTable;
+    // This is safe because 'this' is only allowed at the method scope level
+    while(currTable->getParent()->getParent() != 0){
+        currTable = currTable->getParent();
+    }
+    // Get class name from table name
+    // Tablename is of the form "Global::ClassName"
+    string temp = currTable->getName();
+    temp = temp.substr(8);
+    if(tryLookup(temp, result)){
+        return true;
+    }
+    return false;
 }
 
 void TableManager::dump(){

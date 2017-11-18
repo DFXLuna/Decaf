@@ -7,9 +7,9 @@ void dumpEmpty();
 
 int main(){
     basicTests();
-    cout << "Dump on Empty" << endl;
-    dumpEmpty();
-    
+    // cout << "Dump on Empty" << endl;
+    // dumpEmpty();
+
     return 0;
 }
 
@@ -66,7 +66,7 @@ void basicTests(){
     ///////////////////////////////////////////////////
     // TypeInst tests
     // Basic Insert test
-    t.enterScope();
+    t.enterScope("BIT");
     if(t.addTypeInst("TypeA", "VarA")){
         cout << "BIT test passed" << endl;
     }
@@ -85,7 +85,7 @@ void basicTests(){
 
     // Parent Lookup test
     vara = 0;
-    t.enterScope();
+    t.enterScope("PLT");
     if(t.tryLookup("VarA", vara) && vara->getName() == "VarA"){
         cout << "PLT test passed" << endl;
     }
@@ -95,7 +95,7 @@ void basicTests(){
 
     //2 Parents
     vara = 0;
-    t.enterScope();
+    t.enterScope("2LT");
     if(t.tryLookup("VarA", vara) && vara->getName() == "VarA"){
         cout << "2LT test passed" << endl;
     }
@@ -137,7 +137,7 @@ void basicTests(){
     }
 
     // Parent Table Lookup test
-    t.enterScope();
+    t.enterScope("PTL");
     metha = 0;
     if( t.tryLookup("MethA", metha) && metha != 0 ){
         cout << "PTL test passed" << endl;
@@ -190,6 +190,18 @@ void basicTests(){
     }
     else{
         cout << "VRT test failed---" << endl;
+    }
+    t.exitScope();
+
+    // This resolution test
+    TypeDecl* thisTest = 0;
+    t.forwardEntryGlobalTypeTable("TRT");
+    t.enterScope("Global::TRT");
+    if( t.tryResolveThis( thisTest ) ){
+        cout << "TRT test passed" << endl;
+    }
+    else {
+        cout << "TRT test failed---" << endl;
     }
 
     t.dump();
