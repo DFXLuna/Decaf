@@ -1100,7 +1100,6 @@ bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     }
     string typeName = name->getName();
     
-    // Find table corresponding to type from tryGetType
     if(!right){
         cout << "Error: malformed syntax tree" << endl;
         return false;
@@ -1128,7 +1127,34 @@ NameExprNode::NameExprNode( Node* name, Node* expr ): Node( name, expr ){}
 
 bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     // check expr type then check name type
-    return false;
+    TypeDecl* nameType = 0;
+    if(!left){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if( !left->tryGetType(tm, nameType) ){
+        cout << "Undefined symbol" << endl;
+        return false;
+    }
+    // Check table for array type
+    string typeName = nameType->getName();
+    typeName += "[]";
+    TypeDecl* temp = 0;
+    if( !tm->tryLookup(typeName, temp) ){
+        cout << "Error: type '" << typeName << "' doesn not exist" << endl;
+        return false;
+    }
+    // make sure expr type is int
+    if(!right){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    temp = 0;
+    if( !right->tryGetType(tm, temp) || temp != tm->getIntType() ){
+        cout << "Error: index for '" << typeName << "' is not an int" << endl;
+        return false;
+    }
+    return true;
 }
 
 void NameExprNode::print(){

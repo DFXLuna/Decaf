@@ -219,6 +219,12 @@ bool TableManager::searchLocalTable( string tableName, string varid, TypeDecl*& 
     return true;
 }
 
+TypeDecl* TableManager::getIntType(){
+    TypeDecl* toRet = 0;
+    globalTypeTable.tryLookup("int", toRet);
+    return toRet;
+}
+
 void TableManager::dump(){
     if( globalTypeTable != 0 ){
         globalTypeTable->print();

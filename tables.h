@@ -60,7 +60,7 @@ public:
 
     // finds table 'name' and searches only it for the var named id
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
-
+    TypeDecl* getIntType();
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
