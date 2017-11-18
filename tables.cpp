@@ -351,6 +351,10 @@ void TypeInst::print(){
     
 }
 
+TypeDecl* TypeInst::getType(){
+    return type;
+}
+
 string TypeInst::getName(){
     return name;
 }

@@ -110,6 +110,7 @@ public:
     TypeInst();
     TypeInst( string name, TypeDecl* type );
     string getName();
+    TypeDecl* getType();
     void print();
 private:
     // Var name

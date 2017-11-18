@@ -74,6 +74,11 @@ bool Node::typeCheck( TableManager* tm ){
     return false;
 }
 
+bool Node::tryGetType( TableManager* tm, TypeDecl*& result ){
+    cout << "Error: Malformed syntax tree" << endl;
+    return false;
+}
+
 /////////////////////////////////////////
 
 IdNode::IdNode( string v ): Node( 0, 0 ){
@@ -790,6 +795,11 @@ void ParameterIDNode::print(){
 // Statement Nodes
 
 EmptyStatementNode::EmptyStatementNode(): Node( 0, 0 ){}
+
+bool EmptyStatementNode::typeCheck( TableManager* tm ){
+    return true;
+}
+
 void EmptyStatementNode::print(){
     cout << "<stmt> -> ;" << endl;
 }
@@ -798,6 +808,44 @@ void EmptyStatementNode::print(){
 
 EQStatementNode::EQStatementNode( Node* name, Node* expr ):
 Node( name, expr ){}
+
+bool EQStatementNode::typeCheck( TableManager* tm ){
+    bool toRet = true;
+    TypeDecl* nameType = 0;
+    TypeDecl* exprType = 0;
+    if( !left || !right ){ 
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if(left->tryGetType(nameType) && right->tryGetType(exprType)){
+        // Do comparison
+        if(nameType == exprType){
+            return true;
+        }
+        else{
+            string name;
+            if(left->getID(name)){
+                cout << "Error: Invalid assignment to symbol '" 
+                << name << "'." << endl;
+            }
+            else{
+                cout << "Error: malformed syntax tree" << endl;
+            }
+            return false;
+        }
+    }
+    else{
+        string name;
+        if(left->getID(name)){
+            cout << "Symbol '" << name 
+            << "' is used before it is defined." << endl;
+        }
+        else{
+            cout << "Error: malformed syntax tree" << endl;
+        }
+        return false;
+    }
+}
 
 void EQStatementNode::print(){
     cout << "<stmt> -> <name> = <expr>;" << endl;
@@ -995,6 +1043,11 @@ void LocalVarDecIDNode::print(){
 // name Nodes
 ThisNode::ThisNode(): Node ( 0, 0 ){}
 
+bool ThisNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // Use tablemanager this resolution
+
+}
+
 void ThisNode::print(){
     cout << "<name> -> this" << endl;
 }
@@ -1003,6 +1056,22 @@ void ThisNode::print(){
 
 NameIdNode::NameIdNode( Node* id ): Node ( id, 0 ){}
 
+bool NameIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    TypeInst* temp = 0;
+    string id;
+    if(left && left->getID(id)){
+        if(tm->tryLookup(id, temp)){
+            result = temp->getType();
+        }
+        else{
+            cout << "Error: symbol '" << id << "' undefined." << endl;
+        }
+    }
+    else{
+        cout << "Error: Malformed syntax tree" << endl;
+    }
+}
+
 void NameIdNode::print(){
     cout << "<name> -> id" << endl;
 }
@@ -1010,6 +1079,10 @@ void NameIdNode::print(){
 ////
 
 NameDotIdNode::NameDotIdNode( Node* name, Node* Id ): Node( name, Id ){}
+
+bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // Use table manager Name resolution
+}
 
 void NameDotIdNode::print(){
     cout << "<name> -> <name> . id" << endl;
@@ -1020,6 +1093,10 @@ void NameDotIdNode::print(){
 
 // This assigns the name subtree to left and the expr subtree to right
 NameExprNode::NameExprNode( Node* name, Node* expr ): Node( name, expr ){}
+
+bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // check expr type then check name type
+}
 
 void NameExprNode::print(){
     cout << "<name> -> <name> [ <expr> ]" << endl;

@@ -37,6 +37,8 @@ public:
     bool virtual passConstructorNames( string name );
 
     bool virtual typeCheck( TableManager* tm );
+
+    bool virtual tryGetType( TableManager* tm, TypeDecl*& result );
 protected:
     Node* left;
     Node* right;
@@ -314,12 +316,14 @@ private:
 class EmptyStatementNode : public Node {
 public:
     EmptyStatementNode();
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
 class EQStatementNode : public Node {
 public:
     EQStatementNode( Node* name = 0, Node* expr = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -353,24 +357,28 @@ public:
 class ThisNode : public Node {
 public:
     ThisNode();
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
 class NameIdNode : public Node {
 public:
     NameIdNode( Node* id );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
 class NameDotIdNode : public Node {
 public:
     NameDotIdNode( Node* name = 0, Node* Id = 0 );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
 class NameExprNode : public Node {
 public:
     NameExprNode( Node* name = 0, Node* expr = 0 );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 

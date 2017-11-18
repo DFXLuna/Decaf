@@ -1,8 +1,11 @@
-- Somehow coerece the tree into typechecking itself
-    - Type check
+- getting types from names
+- getting types from expr
+
+- typechecking statements
+
 - Enable error checking in Bison
-- Fix method overloading?
 
 Victory lap:
+- Fix method overloading?
 - Implement error type in tablemanager for more verbose failure
 - Make tables print in order
