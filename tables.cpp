@@ -221,7 +221,7 @@ bool TableManager::searchLocalTable( string tableName, string varid, TypeDecl*& 
 
 TypeDecl* TableManager::getIntType(){
     TypeDecl* toRet = 0;
-    globalTypeTable.tryLookup("int", toRet);
+    globalTypeTable->tryLookup("int", toRet);
     return toRet;
 }
 
@@ -485,6 +485,10 @@ bool MethDecl::isForward(){
 
 vector<TypeDecl*> MethDecl::getArgTypes(){
     return argTypes;
+}
+
+TypeDecl* MethDecl::getRetType(){
+    return retType;
 }
 
 void MethDecl::print(){

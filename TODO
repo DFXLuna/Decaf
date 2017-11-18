@@ -1,6 +1,6 @@
-- getting types from names
 - getting types from expr
-
+    - Finish implemented new expr. gather brackets;
+    - test nameexpr trygetType
 - typechecking statements
 
 - Enable error checking in Bison

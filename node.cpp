@@ -1231,6 +1231,13 @@ void OptExprNode::print(){
 // Expression Nodes
 ExprNameNode::ExprNameNode( Node* name ): Node( name, 0 ){}
 
+bool ExprNameNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( left && left->tryGetType(tm, result) ){
+        return true;
+    }
+    return false;
+}
+
 void ExprNameNode::print(){
     cout << "<expr> -> <name>" << endl;
     if(left){ left->print(); }
@@ -1242,9 +1249,25 @@ NumNode::NumNode(int v){
     val = v;
 }
 
+bool NumNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    result = tm->getIntType();
+    return true;
+}
+
+void NumNode::print(){
+    cout << "<expr> -> number" << endl;
+}
+
 ////
 
 NullNode::NullNode(): Node( 0, 0 ){}
+
+
+bool NullNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // No clue how to deal with this
+    result = tm->getIntType();
+    return true;
+}
 
 void NullNode::print(){
     cout << "<expr> -> null" << endl;
@@ -1254,6 +1277,12 @@ void NullNode::print(){
 
 ReadNode::ReadNode(): Node( 0, 0 ){}
 
+
+bool ReadNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    result = tm->getIntType();
+    return true;
+}
+
 void ReadNode::print(){
     cout << "<expr> -> read ( )" << endl;
 }
@@ -1261,6 +1290,13 @@ void ReadNode::print(){
 ////
 
 NewExprNode::NewExprNode( Node* newexpr ): Node( newexpr, 0 ){}
+
+bool NewExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( left && left->tryGetType(tm, result) ){
+        return true;
+    }
+    return false;
+}
 
 void NewExprNode::print(){
     cout << "<expr> -> <newexpr>" << endl;
@@ -1272,6 +1308,20 @@ void NewExprNode::print(){
 MethodCallNode::MethodCallNode( Node* name, Node* arglist ):
 Node( name, arglist ){}
 
+
+bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    MethDecl* temp = 0;
+    string name = left->getID();
+    if( tm->tryLookup(name, temp) ){
+        result = temp->getRetType();
+        return truel
+    }
+    else {
+        cout << "Error: symbol '" << name << "' undefined." << endl;
+        return false;
+    }
+}
+
 void MethodCallNode::print(){
     cout << "<expr> -> <name> ( <arglist> )" << endl;
     if(left){ left->print(); }
@@ -1280,14 +1330,18 @@ void MethodCallNode::print(){
 
 ////
 
-void NumNode::print(){
-    cout << "<expr> -> number" << endl;
-}
-
-////
-
 // Sum nodes
 SumNode::SumNode( Node* l, Node* r ): Node( l, r ){}
+
+bool SumNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
 
 void SumNode::print(){
     cout << "<expr> -> <expr> + <expr>" << endl;
@@ -1299,6 +1353,16 @@ void SumNode::print(){
 
 MinusNode::MinusNode( Node* l, Node* r ): Node( l, r ){}
 
+bool MinusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 void MinusNode::print(){
     cout << "<expr> -> <expr> - <expr>" << endl;
     if(left){ left->print(); }
@@ -1308,6 +1372,16 @@ void MinusNode::print(){
 //// 
 
 ORNode::ORNode( Node* l, Node* r ): Node( l, r ){}
+
+bool ORNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 void ORNode::print(){
     cout << "<expr>-> <expr> || <expr>" << endl;
@@ -1319,6 +1393,16 @@ void ORNode::print(){
 // Relation Nodes
 EqNode::EqNode( Node* l, Node* r ): Node( l, r ){}
 
+bool EqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
+
 void EqNode::print(){
     cout << "<expr> -> <expr> == <expr>" << endl;
     if(left){ left->print(); }
@@ -1328,6 +1412,16 @@ void EqNode::print(){
 //// 
 
 NeqNode::NeqNode( Node* l, Node* r ): Node( l, r ){}
+
+bool NeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
 
 void NeqNode::print(){
     cout << "<expr> -> <expr> != <expr>" << endl;
@@ -1339,6 +1433,16 @@ void NeqNode::print(){
 
 LeqNode::LeqNode( Node* l, Node* r ): Node( l, r ){}
 
+bool LeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
+
 void LeqNode::print(){
     cout << "<expr> -> <expr> <= <expr>" << endl;
     if(left){ left->print(); }
@@ -1348,6 +1452,16 @@ void LeqNode::print(){
 //// 
 
 GeqNode::GeqNode( Node* l, Node* r ): Node( l, r ){}
+
+bool GeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 void GeqNode::print(){
     cout << "<expr> -> <expr> >= <expr>" << endl;
@@ -1359,6 +1473,16 @@ void GeqNode::print(){
 
 LessNode::LessNode( Node* l, Node* r ): Node( l, r ){}
 
+bool LessNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 void LessNode::print(){
     cout << "<expr> -> <expr> < <expr>" << endl;
     if(left){ left->print(); }
@@ -1368,6 +1492,16 @@ void LessNode::print(){
 //
 
 GreaterNode::GreaterNode( Node* l, Node* r ): Node( l, r ){}
+
+bool GreaterNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 void GreaterNode::print(){
     cout << "<expr> -> <expr> > <expr>" << endl;
@@ -1380,6 +1514,16 @@ void GreaterNode::print(){
 
 TimesNode::TimesNode( Node* l, Node* r ): Node( l, r ){}
 
+bool TimesNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
+
 void TimesNode::print(){
     cout << "<expr> -> <expr> * <expr>" << endl;
     if(left){ left->print(); }
@@ -1389,6 +1533,16 @@ void TimesNode::print(){
 //// 
 
 DivNode::DivNode( Node* l, Node* r ): Node( l, r ){}
+
+bool DivNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 void DivNode::print(){
     cout << "<expr> -> <expr> / <expr>" << endl;
@@ -1400,6 +1554,16 @@ void DivNode::print(){
 
 ModNode::ModNode( Node* l, Node* r ): Node( l, r ){}
 
+bool ModNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }
+ }
+
 void ModNode::print(){
     cout << "<expr> -> <expr> % <expr>" << endl;
     if(left){ left->print(); }
@@ -1409,6 +1573,16 @@ void ModNode::print(){
 //// 
 
 ANDNode::ANDNode( Node* l, Node* r ): Node( l, r ){}
+
+bool ANDNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
+    if(left && right){
+        result = tm->getIntType();
+        return true;
+    }
+    else{
+        return false;
+    }s
+ }
 
 void ANDNode::print(){
     cout << "<expr> -> <expr> && <expr>" << endl;
@@ -1421,6 +1595,13 @@ void ANDNode::print(){
 
 UMinusNode::UMinusNode( Node* r ): Node( 0, r ){}
 
+bool UMinusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( right && right->tryGetType(tm, result) ){
+        return true;
+    } 
+    return false; 
+}
+
 void UMinusNode::print(){
     cout << "<expr> -> -<expr>" << endl;
     if(right){ right->print(); }
@@ -1429,6 +1610,13 @@ void UMinusNode::print(){
 //// 
 
 UPlusNode::UPlusNode( Node* r ): Node( 0, r ){}
+
+bool UPlusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( right && right->tryGetType(tm, result) ){
+        return true;
+    } 
+    return false;
+}
 
 void UPlusNode::print(){
     cout << "<expr> -> +<expr>" << endl;
@@ -1439,6 +1627,13 @@ void UPlusNode::print(){
 
 UExclNode::UExclNode( Node* r ): Node( 0, r ){}
 
+bool UExclNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( right && right->tryGetType(tm, result) ){
+        return true;
+    }
+    return false;
+ }
+
 void UExclNode::print(){
     cout << "<expr> -> !<expr>" << endl;
     if(right){ right->print(); }
@@ -1447,6 +1642,13 @@ void UExclNode::print(){
 ////
 
 ParenNode::ParenNode( Node* l ): Node( l, 0 ){}
+
+bool ParenNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( left && left->tryGetType(tm, result) ){
+        return true;
+    }
+    return false;
+}
 
 void ParenNode::print(){
     cout << "<expr> -> ( <expr> )" << endl;
@@ -1458,12 +1660,36 @@ void ParenNode::print(){
 
 NewIdArgsNode::NewIdArgsNode( Node* type, Node* args ): Node( type, args ){}
 
+bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl* result ){
+    string name;
+    if( left && left->getID(name) && tm->tryLookup(name, result) ){
+        return true;
+
+    }
+    else{
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+}
+
 void NewIdArgsNode::print(){
     cout << "<newexpr> -> new id ( <arglist> )" << endl;
     if(right){ right->print(); }
 }
 
 NewIdNode::NewIdNode( Node* type , Node* bracket ): Node( type, bracket ){}
+
+bool NewIdNode::tryGetType( TableManager* tm , TypeDecl* result ){
+    string name;
+    if( left && left->getID(name) && tm->tryLookup(name, result) ){
+        return true;
+
+    }
+    else{
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+}
 
 void NewIdNode::print(){
     cout << "<newexpr> -> new id <bracketset>" << endl;
@@ -1474,6 +1700,10 @@ void NewIdNode::print(){
 
 NewSimpleNode::NewSimpleNode( Node* type, Node* bracket ):
 Node( type, bracket ){}
+
+bool NewSimpleNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if(left)
+}
 
 void NewSimpleNode::print(){
     cout << "<newexpr> -> new <simpletype>";

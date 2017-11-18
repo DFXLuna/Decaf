@@ -163,6 +163,7 @@ public:
     bool isForward();
     void resolveForward();
     vector<TypeDecl*> getArgTypes();
+    TypeDecl* getRetType();
     void print();
     bool operator==(const MethDecl& rhs) const;
 private:

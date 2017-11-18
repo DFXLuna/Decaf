@@ -5,6 +5,8 @@
 
 - Method and constructor overloading isn't currently supported yet.
 
+- This uses the C style of true and false
+
 - During the table dump, constructors are listed just like methods
 and they list a return type of void.
 
