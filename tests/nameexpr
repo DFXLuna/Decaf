@@ -1,0 +1,8 @@
+class abc{
+    int IntA;
+    int[] IntArray;
+    void a(){
+        abc a;
+        IntArray[] = 0 + 2;
+    }
+}

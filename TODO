@@ -1,5 +1,5 @@
 - getting types from expr
-    - Finish implemented new expr. gather brackets;
+    - fix nameexpr
     - test nameexpr trygetType
 - typechecking statements
 
