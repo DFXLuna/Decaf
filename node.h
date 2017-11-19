@@ -603,18 +603,21 @@ public:
 class NewIdArgsNode : public Node {
 public:
     NewIdArgsNode( Node* type = 0, Node* arglist = 0 );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
 class NewIdNode : public Node {
 public:
     NewIdNode( Node* type = 0, Node* bracket = 0 );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
 class NewSimpleNode : public Node {
 public:
     NewSimpleNode ( Node* type = 0, Node* bracket = 0 );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 
 };
@@ -625,6 +628,7 @@ public:
 class BracketSetNode : public Node {
 public:
     BracketSetNode( Node* exprb = 0, Node* b = 0 );
+    int gatherBrackets();
     void print();
 };
 
@@ -638,6 +642,7 @@ public:
 class BracketExprNode : public Node {
 public:
     BracketExprNode( Node* next = 0, Node* expr = 0);
+    int gatherBrackets();
     void print();
 };
 

@@ -1311,10 +1311,11 @@ Node( name, arglist ){}
 
 bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
     MethDecl* temp = 0;
-    string name = left->getID();
+    string name;
+    left->getID(name);
     if( tm->tryLookup(name, temp) ){
         result = temp->getRetType();
-        return truel
+        return true;
     }
     else {
         cout << "Error: symbol '" << name << "' undefined." << endl;
@@ -1581,7 +1582,7 @@ bool ANDNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     }
     else{
         return false;
-    }s
+    }
  }
 
 void ANDNode::print(){
@@ -1660,7 +1661,7 @@ void ParenNode::print(){
 
 NewIdArgsNode::NewIdArgsNode( Node* type, Node* args ): Node( type, args ){}
 
-bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl* result ){
+bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl*& result ){
     string name;
     if( left && left->getID(name) && tm->tryLookup(name, result) ){
         return true;
@@ -1679,11 +1680,22 @@ void NewIdArgsNode::print(){
 
 NewIdNode::NewIdNode( Node* type , Node* bracket ): Node( type, bracket ){}
 
-bool NewIdNode::tryGetType( TableManager* tm , TypeDecl* result ){
+bool NewIdNode::tryGetType( TableManager* tm , TypeDecl*& result ){
     string name;
-    if( left && left->getID(name) && tm->tryLookup(name, result) ){
-        return true;
-
+    TypeDecl* temp = 0;
+    if( left && left->getID(name) && tm->tryLookup(name, temp) ){
+        // Check for array type
+        int b = 0;
+        if(right){
+            b = right->gatherBrackets();
+        }
+        for(int i = 0; i < b; i++){
+            name += "[]";
+        }
+        if(tm->tryLookup(name, result)){
+            return true;
+        }
+        return false;
     }
     else{
         cout << "Error: malformed syntax tree" << endl;
@@ -1702,7 +1714,26 @@ NewSimpleNode::NewSimpleNode( Node* type, Node* bracket ):
 Node( type, bracket ){}
 
 bool NewSimpleNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left)
+    string name;
+    TypeDecl* temp = 0;
+    if( left && left->getID(name) && tm->tryLookup(name, temp) ){
+        // Check for array type
+        int b = 0;
+        if(right){
+            b = right->gatherBrackets();
+        }
+        for(int i = 0; i < b; i++){
+            name += "[]";
+        }
+        if(tm->tryLookup(name, result)){
+            return true;
+        }
+        return false;
+    }
+    else{
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
 }
 
 void NewSimpleNode::print(){
@@ -1721,6 +1752,13 @@ void NewSimpleNode::print(){
 /////////////////////////////////////////
 // Bracket nodes
 BracketSetNode::BracketSetNode( Node* exprb, Node* b ): Node ( exprb, b ){}
+
+int BracketSetNode::gatherBrackets(){
+    int ret = 0;
+    if(left){ ret += left->gatherBrackets(); }
+    if(right){ ret += right->gatherBrackets(); }
+    return ret;
+}
 
 void BracketSetNode::print(){
     cout << "<bracketset> -> ";
@@ -1761,6 +1799,11 @@ void BracketNode::print(){
 
 BracketExprNode::BracketExprNode( Node* next, Node* expr ):
 Node( next, expr ) {}
+
+int BracketExprNode::gatherBrackets(){
+    if(left){ return 1 + left->gatherBrackets(); }
+    return 1;
+}
 
 void BracketExprNode::print(){
     cout << "<exprbrackets> -> ";

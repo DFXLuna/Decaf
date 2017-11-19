@@ -1,0 +1,19 @@
+class abc{
+    void a(){
+        int b;
+        int[] c;
+        int[][][] d;
+
+        abc e;
+        abc[] f;
+        abc[][][] g;
+
+        b = new int;
+        c = new int[];
+        d = new int[][][];
+        
+        e = new abc();
+        f = new abc[];
+        g = new abc[][][];
+    }
+}
