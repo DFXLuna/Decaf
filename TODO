@@ -1,3 +1,4 @@
+- Add scope for anonymous blocks in while and conditional statements
 - typechecking
     - Func Statement
     - while Statement

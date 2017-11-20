@@ -17,3 +17,5 @@ table.
 fails if the statement is the first statement in a block. so
 IntArray[1] = 1; only works if it is preceded by another statement in the 
 block. This only affects arrays.
+
+- Error messages are vague and generally unhelpful.

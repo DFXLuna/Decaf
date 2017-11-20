@@ -327,6 +327,7 @@ public:
 class WhileStatementNode : public Node {
 public:
     WhileStatementNode( Node* expr = 0, Node* stmt = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 

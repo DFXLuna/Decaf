@@ -946,6 +946,18 @@ void PrintStatementNode::print(){
 WhileStatementNode::WhileStatementNode( Node* expr, Node* stmt ):
 Node( expr, stmt ){}
 
+bool WhileStatementNode::typeCheck( TableManager* tm ){
+    if( !left || !right ){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    TypeDecl* temp = 0;
+    if( !left->tryGetType(tm, temp) || temp != tm->getIntType() ){
+        cout << "Error: Invalid condition in while loop" << endl;
+        return false;
+    }
+}
+
 void WhileStatementNode::print(){
     cout << "<stmt> -> while ( <expr> ) <stmt>;" << endl;
     if(left){ left->print(); }
