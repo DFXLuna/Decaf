@@ -215,22 +215,6 @@ private:
 };
 
 /////////////////////////////////////////
-// Result Type Nodes
-// class ResultTypeNode : public Node {
-// public:
-//     ResultTypeNode( Node* type = 0 );
-//     void print();
-// };
-
-// ////
-
-// class ResultVoidNode : public Node {
-// public:
-//     ResultVoidNode();
-//     void print();
-// };
-
-/////////////////////////////////////////
 // Parameter List Node
 class ParameterListNode : public Node {
 public:
