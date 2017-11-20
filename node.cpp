@@ -931,6 +931,11 @@ void FuncStatementNode::print(){
 
 PrintStatementNode::PrintStatementNode( Node* arglist ): Node( arglist, 0 ){}
 
+// Print statement doesn't really need to be checked
+bool PrintStatementNode::typeCheck( TableManager* tm ){
+    return true;
+}
+
 void PrintStatementNode::print(){
     cout << "<stmt> -> print( <arglist> );" << endl;
     if(left){ left->print(); }

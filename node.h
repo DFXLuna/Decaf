@@ -320,6 +320,7 @@ public:
 class PrintStatementNode : public Node {
 public:
     PrintStatementNode( Node* arglist = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
