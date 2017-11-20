@@ -1,8 +1,9 @@
 class abc{
-    int IntA;
     int[] IntArray;
+    int[][] IntDArray;
     void a(){
-        abc a;
-        IntArray[] = 0 + 2;
+        int IntA;
+        IntA = IntArray[1];
+        IntArray = IntDArray[1];
     }
 }

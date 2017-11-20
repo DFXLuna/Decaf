@@ -13,5 +13,7 @@ and they list a return type of void.
 - Arrays on types are stored as types, so they show up in the global type 
 table.
 
-- I wasn't paying very close attention to where I output error messages so 
-one error in the program may cause up to 5 - 10 error messages to appear.
+- There's a strange error where an assignment to an element in an array 
+fails if the statement is the first statement in a block. so
+IntArray[1] = 1; only works if it is preceded by another statement in the 
+block. This only affects arrays.

@@ -225,6 +225,18 @@ TypeDecl* TableManager::getIntType(){
     return toRet;
 }
 
+bool TableManager::navigateTo( string nameOfChild ){
+    string qualifiedName = getCurrentScope() + "::" + nameOfChild;
+    vector<Table*> c = currTable->getChildren();
+    for( unsigned int i = 0; i < c.size(); i++ ){
+        if( c[i]->getName() == qualifiedName ){
+            currTable = c[i];
+            return true;
+        }
+    }
+    return false;
+}
+
 void TableManager::dump(){
     if( globalTypeTable != 0 ){
         globalTypeTable->print();

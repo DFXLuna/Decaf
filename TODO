@@ -1,11 +1,12 @@
 - getting types from expr
-    - fix nameexpr
     - test nameexpr trygetType
 - typechecking statements
+- Arglist typechecking
 
 - Enable error checking in Bison
 
 Victory lap:
+- fix nameexpr
 - Fix method overloading?
 - Implement error type in tablemanager for more verbose failure
 - Make tables print in order

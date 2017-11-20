@@ -164,9 +164,22 @@ void ClassDecNode::populateTables( TableManager* tm ){
 }
 
 bool ClassDecNode::typeCheck( TableManager* tm ){
+    // Move to current scope
+    string name;
+    if(!right->getID(name)){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    if( !tm->navigateTo(name) ){
+        cout << "Error: malformed type table" << endl;
+        return false;
+    }
+    // Begin type check cascade
     if(left && left->typeCheck( tm )){
+        tm->exitScope();
         return true;
     }
+    // Leave scope
+    tm->exitScope();
     return false;
 }
 
@@ -499,9 +512,22 @@ void ConstructorDecNode::populateTables( TableManager* tm ){
 }
 
 bool ConstructorDecNode::typeCheck( TableManager* tm ){
-    if( !block || !block->typeCheck(tm)){
+    // Enter scope
+    string name;
+    if(!left->getID(name)){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    if( !tm->navigateTo(name) ){
+        cout << "Error: malformed type table" << endl;
         return false;
     }
+    // Continue type check
+    if( !block || !block->typeCheck(tm)){
+        tm->exitScope();
+        return false;
+    }
+    // Exit scope
+    tm->exitScope();
     return true;
 }
 
@@ -558,9 +584,23 @@ void MethodDecNode::populateTables( TableManager* tm ){
 }
 
 bool MethodDecNode::typeCheck(  TableManager* tm ){
-    if( !block || !block->typeCheck(tm) ){
+    // Enter scope
+    string name;
+    // uneeded but used to break up typeid
+    string type;
+    if(!left->getTypeID(type, name)){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    if( !tm->navigateTo(name) ){
+        cout << "Error: malformed type table" << endl;
         return false;
     }
+    // Continue type check
+    if( !block || !block->typeCheck(tm) ){
+        tm->exitScope();
+        return false;
+    }
+    tm->exitScope();
     return true;
 }
 
@@ -610,9 +650,21 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
 }
 
 bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
-    if( !block || !block->typeCheck(tm) ){
+    // Enter scope
+    string name;
+    if(!left->getID(name)){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    if( !tm->navigateTo(name) ){
+        cout << "Error: malformed type table" << endl;
         return false;
     }
+    // Continue type check
+    if( !block || !block->typeCheck(tm) ){
+        tm->exitScope();
+        return false;
+    }
+    tm->exitScope();
     return true;
 }
 
@@ -665,9 +717,21 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
 }
 
 bool IDMethodDecNode::typeCheck(  TableManager* tm ){
-    if( !block || !block->typeCheck(tm) ){
+    // Enter scope
+    string name;
+    if(!left->getID(name)){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    if( !tm->navigateTo(name) ){
+        cout << "Error: malformed type table" << endl;
         return false;
     }
+    // Continue type check
+    if( !block || !block->typeCheck(tm) ){
+        tm->exitScope();
+        return false;
+    }
+    tm->exitScope();
     return true;
 }
 
@@ -810,42 +874,40 @@ EQStatementNode::EQStatementNode( Node* name, Node* expr ):
 Node( name, expr ){}
 
 bool EQStatementNode::typeCheck( TableManager* tm ){
-    return false;
-    // bool toRet = true;
-    // TypeDecl* nameType = 0;
-    // TypeDecl* exprType = 0;
-    // if( !left || !right ){ 
-    //     cout << "Error: malformed syntax tree" << endl;
-    //     return false;
-    // }
-    // if(left->tryGetType(nameType) && right->tryGetType(exprType)){
-    //     // Do comparison
-    //     if(nameType == exprType){
-    //         return true;
-    //     }
-    //     else{
-    //         string name;
-    //         if(left->getID(name)){
-    //             cout << "Error: Invalid assignment to symbol '" 
-    //             << name << "'." << endl;
-    //         }
-    //         else{
-    //             cout << "Error: malformed syntax tree" << endl;
-    //         }
-    //         return false;
-    //     }
-    // }
-    // else{
-    //     string name;
-    //     if(left->getID(name)){
-    //         cout << "Symbol '" << name 
-    //         << "' is used before it is defined." << endl;
-    //     }
-    //     else{
-    //         cout << "Error: malformed syntax tree" << endl;
-    //     }
-    //     return false;
-    // }
+    TypeDecl* nameType = 0;
+    TypeDecl* exprType = 0;
+    if( !left || !right ){ 
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if(left->tryGetType(tm, nameType) && right->tryGetType(tm, exprType)){
+        // Do comparison
+        if(nameType == exprType){
+            return true;
+        }
+        else{
+            string name;
+            if(left->getID(name)){
+                cout << "Error: Invalid assignment to symbol '" 
+                << name << "'." << endl;
+            }
+            else{
+                cout << "Error: malformed syntax tree" << endl;
+            }
+            return false;
+        }
+    }
+    else{
+        string name;
+        if(left->getID(name)){
+            cout << "Symbol '" << name 
+            << "' is used before it is defined." << endl;
+        }
+        else{
+            cout << "Error: malformed syntax tree" << endl;
+        }
+        return false;
+    }
 }
 
 void EQStatementNode::print(){
@@ -1126,7 +1188,7 @@ void NameDotIdNode::print(){
 NameExprNode::NameExprNode( Node* name, Node* expr ): Node( name, expr ){}
 
 bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    // check expr type then check name type
+    // check expr type then set result as name type
     TypeDecl* nameType = 0;
     if(!left){
         cout << "Error: malformed syntax tree" << endl;
@@ -1136,20 +1198,22 @@ bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         cout << "Undefined symbol" << endl;
         return false;
     }
-    // Check table for array type
+    // Check table for nonarray type
+    // Remove one level of braces (array access type): 
+    // Int[0] -> Int; Int[0][] -> Int[]
     string typeName = nameType->getName();
-    typeName += "[]";
-    TypeDecl* temp = 0;
-    if( !tm->tryLookup(typeName, temp) ){
-        cout << "Error: type '" << typeName << "' doesn not exist" << endl;
+    typeName = typeName.substr(0, typeName.size() - 2);
+    if( !tm->tryLookup(typeName, result) ){
+        cout << "Error: type '" << typeName << "' does not exist" << endl;
         return false;
     }
+
     // make sure expr type is int
     if(!right){
         cout << "Error: malformed syntax tree" << endl;
         return false;
     }
-    temp = 0;
+    TypeDecl* temp = 0;
     if( !right->tryGetType(tm, temp) || temp != tm->getIntType() ){
         cout << "Error: index for '" << typeName << "' is not an int" << endl;
         return false;

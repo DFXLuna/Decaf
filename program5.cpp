@@ -32,10 +32,10 @@ int main(int argc, char* argv[]){
         for( unsigned int i = 0; i < tree.size(); i++ ){
             tree[i]->populateTables( &t );
         }
-        // // Type check
-        // for( unsigned int i = 0; i < tree.size(); i++ ){
-        //     tree[i]->typeCheck( &t );
-        // } 
+        // Type check
+        for( unsigned int i = 0; i < tree.size(); i++ ){
+            tree[i]->typeCheck( &t );
+        } 
     }
 
     t.dump();

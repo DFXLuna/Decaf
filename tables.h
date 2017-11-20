@@ -61,6 +61,9 @@ public:
     // finds table 'name' and searches only it for the var named id
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
     TypeDecl* getIntType();
+
+    // Used by nodes to follow scope during type checking
+    bool navigateTo( string nameOfChild );
 private:
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
