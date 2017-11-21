@@ -10,6 +10,8 @@ using std::vector;
 #include<iostream>
 using std::cout;
 using std::endl;
+#include<sstream>
+using std::stringstream;
 
 class Table;
 class GlobalTypeTable;
@@ -23,6 +25,9 @@ public:
     ~TableManager();
     void enterScope( string name );
     void exitScope();
+    // Used by nodes to follow scope during type checking
+    bool navigateTo( string nameOfChild );
+    void enterAnonymousScope();
 
     // These could probably have the same name
     bool addTypeInst( string type, string name );
@@ -62,15 +67,17 @@ public:
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
     TypeDecl* getIntType();
 
-    // Used by nodes to follow scope during type checking
-    bool navigateTo( string nameOfChild );
+
+
 private:
+    string appendInt( string str, int i );
     bool createGlobalTypeTable();
     GlobalTypeTable* globalTypeTable;
     Table* currTable;
     // A little bit of a hack to allow methods to have void return types
     // without allowing variables to have it
     TypeDecl* voidType;
+    int anonymousBlockNum = 0;
 };
 
 class Table{

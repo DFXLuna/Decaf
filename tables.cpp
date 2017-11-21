@@ -26,11 +26,25 @@ TableManager::~TableManager(){
 }
 
 void TableManager::enterScope( string name ){
-    Table* newScope = new Table( currTable, name );
-    if(currTable != 0 ){
+    string scope = getCurrentScope() + "::" + name;
+    Table* newScope = new Table( currTable, scope );
+    if( currTable != 0 ){
         currTable->registerChild( newScope );
     }
     currTable = newScope;
+}
+
+
+void TableManager::enterAnonymousScope(){
+    string scopeName = getCurrentScope() + "::" + "Block";
+    scopeName = appendInt(scopeName, anonymousBlockNum);
+    anonymousBlockNum++;
+    Table* newScope = new Table(currTable, scopeName);
+    if( currTable != 0 ){
+        currTable->registerChild( newScope );
+    }
+    currTable = newScope;
+
 }
 
 void TableManager::exitScope(){
@@ -235,6 +249,12 @@ bool TableManager::navigateTo( string nameOfChild ){
         }
     }
     return false;
+}
+
+string TableManager::appendInt( string str, int i ){
+    stringstream s;
+    s << str << i;
+    return s.str();
 }
 
 void TableManager::dump(){

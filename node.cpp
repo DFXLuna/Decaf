@@ -153,7 +153,6 @@ void ClassDecNode::populateTables( TableManager* tm ){
     // Name table
     string name;
     if(!right->getID(name)){ cout << "Error: Malformed syntax tree" << endl; }
-    name = tm->getCurrentScope() + "::" + name;
     // Check constructor names
     checkConstructorNames();
     // Populate table
@@ -501,9 +500,7 @@ void ConstructorDecNode::populateTables( TableManager* tm ){
                 cout << "Error: Cannot add '" << id << "' to symbol table."
                      << endl;
             }
-            string scope = tm->getCurrentScope();
-            scope += ("::" + id);
-            tm->enterScope(scope);
+            tm->enterScope(id);
             if(block){ block->populateTables( tm ); }
             else{ cout << "Error: Malformed syntax tree" << endl; }
             tm->exitScope();
@@ -573,9 +570,7 @@ void MethodDecNode::populateTables( TableManager* tm ){
                 cout << "Error: Cannot add '" << id << "' to symbol table."
                      << endl;
             }
-            string scope = tm->getCurrentScope();
-            scope += ("::" + id);
-            tm->enterScope(scope);
+            tm->enterScope(id);
             if(block){ block->populateTables( tm ); }
             else{ cout << "Error: Malformed syntax tree" << endl; }
             tm->exitScope();
@@ -640,9 +635,7 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        string scope = tm->getCurrentScope();
-        scope += ("::" + id);
-        tm->enterScope(scope);
+        tm->enterScope(id);
         if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
         tm->exitScope();
@@ -707,9 +700,7 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
         }
-        string scope = tm->getCurrentScope();
-        scope += ("::" + id);
-        tm->enterScope(scope);
+        tm->enterScope(id);
         if(block){ block->populateTables( tm ); }
         else{ cout << "Error: Malformed syntax tree" << endl; }
         tm->exitScope();
