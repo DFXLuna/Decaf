@@ -79,6 +79,10 @@ bool Node::tryGetType( TableManager* tm, TypeDecl*& result ){
     return false;
 }
 
+bool Node::isBlock(){
+    return false;
+}
+
 /////////////////////////////////////////
 
 IdNode::IdNode( string v ): Node( 0, 0 ){
@@ -947,6 +951,30 @@ bool WhileStatementNode::typeCheck( TableManager* tm ){
         cout << "Error: Invalid condition in while loop" << endl;
         return false;
     }
+    // If there's an anonymous block, create a new table and populate it, then
+    // type check it. Very hacked
+    if( right->isBlock() ){
+        // Create anonymous table, populate and typecheck.
+        // Population is done here because renavigating to the anonymous 
+        // table would be difficult
+        tm->enterAnonymousScope();
+        string aScope = tm->getCurrentScope();
+        right->populateTables( tm );
+        if( right->typeCheck( tm ) ){
+            tm->exitScope();
+            return true;
+        }
+        tm->exitScope();
+        return false;
+    }
+    else {
+        // No block no new table
+        if( right->typeCheck(tm) ){
+            return true;
+        }
+        return false;
+    }
+    
 }
 
 void WhileStatementNode::print(){
@@ -983,6 +1011,8 @@ bool BlockNode::typeCheck( TableManager* tm ){
     }
     return true;
 }
+
+bool BlockNode::isBlock(){ return true; }
 
 void BlockNode::print(){
     cout << "<block> -> { ";

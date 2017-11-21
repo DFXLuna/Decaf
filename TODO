@@ -5,6 +5,7 @@
     - print Statement
     - Return statement
 - Arglist typechecking
+- Maybe fix anonymous scopes
 
 - Enable error checking in Bison
 

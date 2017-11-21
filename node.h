@@ -39,6 +39,9 @@ public:
     bool virtual typeCheck( TableManager* tm );
 
     bool virtual tryGetType( TableManager* tm, TypeDecl*& result );
+
+    // Allows while nodes to check and see if its statement node is a block
+    bool virtual isBlock();
 protected:
     Node* left;
     Node* right;
@@ -255,6 +258,7 @@ public:
     BlockNode( Node* localvars = 0, Node* stmts = 0 );
     void populateTables( TableManager* tm );
     bool typeCheck( TableManager* tm );
+    bool isBlock();
     void print();
 };
 
