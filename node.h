@@ -318,6 +318,7 @@ public:
 class FuncStatementNode : public Node {
 public:
     FuncStatementNode( Node* name = 0, Node* arglist = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -338,6 +339,7 @@ public:
 class ReturnStatementNode : public Node {
 public:
     ReturnStatementNode( Node* optexpr = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -406,6 +408,7 @@ private:
 class OptExprNode : public Node {
 public:
     OptExprNode( Node* expr = 0 );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 

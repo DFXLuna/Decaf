@@ -1,10 +1,7 @@
-- Add scope for anonymous blocks in while and conditional statements
 - typechecking
-    - Func Statement
-    - while Statement
-    - print Statement
-    - Return statement
-- Arglist typechecking
+    - cond statement
+- gather arg
+- Method check return type
 - Maybe fix anonymous scopes
 
 - Enable error checking in Bison

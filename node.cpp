@@ -119,7 +119,8 @@ void TypeIdNode::print(){
 
 /////////////////////////////////////////
 // Classdec node
-ClassDecNode::ClassDecNode( Node* classbody, Node* id ): Node( classbody, id ){}
+ClassDecNode::ClassDecNode( Node* classbody, Node* id ): Node( classbody, id )
+{}
 
 void ClassDecNode::print(){
     cout << "<classdec> -> class ID <classbody>" << endl;
@@ -394,7 +395,8 @@ void IdIdNode::print(){
 
 ////
 
-IdMultiIdNode::IdMultiIdNode( Node* type, Node* b, Node* id ): Node( type, id ){
+IdMultiIdNode::IdMultiIdNode( Node* type, Node* b, Node* id ):
+Node( type, id ){
     brackets = b;
 }
 
@@ -691,7 +693,9 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         string id;
         string retType;
         if(!left->getID(id)){ cout << "Error: malformed syntax tree" << endl; }
-        if(!result->getID(retType)){ cout << "Error: malformed syntax tree" << endl; }
+        if(!result->getID(retType)){
+            cout << "Error: malformed syntax tree" << endl;
+        }
         // Process params
         vector<string> types;
         vector<string> ids;
@@ -759,7 +763,8 @@ void IDMethodDecNode::print(){
 // Parameter List Node
 ParameterListNode::ParameterListNode( Node* param ): Node( param, 0 ){}
 
-bool ParameterListNode::gatherParams( vector<string>& types, vector<string>& ids ){
+bool ParameterListNode::gatherParams( vector<string>& types,
+vector<string>& ids ){
     if(left){ return left->gatherParams( types, ids ); }
     return true;
 }
@@ -821,7 +826,8 @@ ParameterIDNode::~ParameterIDNode(){
     delete next;
 }
 
-bool ParameterIDNode::gatherParams( vector<string>& types, vector<string>& ids ){
+bool ParameterIDNode::gatherParams( vector<string>& types,
+vector<string>& ids ){
     string type;
     string id;
     if(!left || !left->getID(type)){ return false; }
@@ -916,6 +922,35 @@ void EQStatementNode::print(){
 FuncStatementNode::FuncStatementNode( Node* name, Node* arglist ):
 Node( name, arglist ){}
 
+bool FuncStatementNode::typeCheck( TableManager* tm ){
+    string funcName;
+    left->getID(funcName);
+    MethDecl* mptr = 0;
+    // check name
+    if( !tm->tryLookup(funcName, mptr) ){
+        cout << "Error: symbol '" << funcName << "' undefined." << endl;
+        return false;
+    }
+    // gather and check args
+    vector<TypeDecl*> argTypes;
+    right->gatherArgs(argTypes);
+    vector<TypeDecl*> paramTypes = mptr->getArgTypes();
+    if( argTypes.size() != paramTypes.size() ){
+        cout << "Error: Incorrect argument count in function call "
+        << funcName << endl;
+        return false;
+    }
+    for(unsigned int i = 0; i < argTypes.size(); i++){
+        if(argTypes[i] != paramTypes[i]){
+            cout << "Error: argument " << i << " in function " << funcName
+            << endl << "Expected type " << paramTypes[i]->getName()
+            << "Actual type " << argTypes[i]->getName() << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 void FuncStatementNode::print(){
     cout << "<stmt> -> <name> ( <arglist> );" << endl;
     if(left){ left->print(); }
@@ -986,6 +1021,15 @@ void WhileStatementNode::print(){
 ////
 
 ReturnStatementNode::ReturnStatementNode( Node* optexpr ): Node( optexpr, 0 ){}
+
+bool ReturnStatementNode::typeCheck( TableManager* tm ){
+    if( !left ){
+        return true;
+    }
+    else{
+        return left->typeCheck(tm);
+    }
+}
 
 void ReturnStatementNode::print(){
     cout << "<stmt> -> return <optexpr>;" << endl;
@@ -1318,6 +1362,15 @@ void CondStatementNode::print(){
 // Optional Expression Nodes
 
 OptExprNode::OptExprNode( Node* expr ): Node( expr, 0 ){}
+
+bool OptExprNode::typeCheck( TableManager* tm ){
+    if( !left ){
+        cout << "Error: malformed syntax tree" << endl;
+    }
+    else{
+        return left->typeCheck( tm ); 
+    }
+}
 
 void OptExprNode::print(){
     if(left){

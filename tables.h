@@ -67,8 +67,6 @@ public:
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
     TypeDecl* getIntType();
 
-
-
 private:
     string appendInt( string str, int i );
     bool createGlobalTypeTable();
@@ -175,6 +173,7 @@ public:
     vector<TypeDecl*> getArgTypes();
     TypeDecl* getRetType();
     void print();
+    string getName();
     bool operator==(const MethDecl& rhs) const;
 private:
     string name;

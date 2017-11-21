@@ -523,6 +523,10 @@ TypeDecl* MethDecl::getRetType(){
     return retType;
 }
 
+string MethDecl::getName(){
+    return name;
+}
+
 void MethDecl::print(){
     cout << name << ": ";
     if(argTypes.size() == 0){
