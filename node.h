@@ -165,6 +165,7 @@ public:
 class SimpleTypeNode : public Node {
 public:
     SimpleTypeNode();
+    bool getID( string& result );
     void print();
 };
 

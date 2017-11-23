@@ -473,6 +473,12 @@ void TypeNode::print(){
 
 SimpleTypeNode::SimpleTypeNode(): Node( 0, 0 ){}
 
+bool SimpleTypeNode::getID( string& result ){
+    // simpletype always goes to int
+    result = "int";
+    return true;
+}
+
 void SimpleTypeNode::print(){
     cout << "<simpletype> -> int" << endl; 
 }

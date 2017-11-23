@@ -1,5 +1,5 @@
 class id {
-    abc( id a, int b, int[][][] c ){
+    id( id a, int b, int[][][] c ){
         int d;
         id e;
         int[] f;
