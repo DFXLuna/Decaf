@@ -1,0 +1,31 @@
+class foo {
+
+  int a;
+  int b
+
+  foo()
+  {
+     int a;
+     this,a = 5;
+  }
+  int boo(int a)
+  {
+    b=a:
+    return 1;
+  
+
+}
+
+class goo {
+  int x;
+
+  foo c;
+
+  int main(
+  {
+    foo f;
+
+    if( x > 5) print(x);
+    return 0;
+  }
+}
