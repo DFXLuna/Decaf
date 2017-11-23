@@ -1,11 +1,11 @@
-- typechecking
-    - cond statement
-- expr typecheck?
-- Method check return type
-- Maybe fix anonymous scopes
-
+- final typechecking
+    - Method call in expr
+    - Method check return type
+    - Maybe optexpr
 - Enable error checking in Bison
+
 
 Victory lap:
 - fix nameexpr
 - Fix method overloading?
+- Maybe fix anonymous scopes

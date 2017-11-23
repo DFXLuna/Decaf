@@ -15,8 +15,8 @@ table.
 
 - There's a strange error where an assignment to an element in an array 
 fails if the statement is the first statement in a block. so
-IntArray[1] = 1; only works if it is preceded by another statement in the 
-block. This only affects arrays.
+"IntArray[1] = 1;" 
+only works if it's not the first statement in a block.
 
 - Error messages are vague and generally unhelpful.
 
