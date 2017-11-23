@@ -61,7 +61,7 @@ public:
 
     // Resolves the keyword 'this' and returns a pointer to the type
     // of the current class's type
-    bool tryResolveThis( TypeDecl* result );
+    bool tryResolveThis( TypeDecl*& result );
 
     // finds table 'name' and searches only it for the id
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );

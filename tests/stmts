@@ -1,8 +1,9 @@
 class id {
-    abc(){
+    id arg1;
+    int b;
+    id(){
         int a;
         a = 1 + 2;
-        a();
         print(arg1, 2);
         if( a ) 
             if( b )
@@ -13,10 +14,7 @@ class id {
             return;
         while( a ){
             int b;
-            b = new abc();
-            b = new abc[1+2][];
             b = new int;
-            b = new int[1+2][];
             while( b ){
                 return b;
             }

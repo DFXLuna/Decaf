@@ -197,7 +197,7 @@ string TableManager::getCurrentScope(){
     }
 }
 
-bool TableManager::tryResolveThis( TypeDecl* result ){
+bool TableManager::tryResolveThis( TypeDecl*& result ){
     // Save current scope, then navigate to the class scope level
     Table* currScope = currTable;
     // This is safe because 'this' is only allowed at the method scope level

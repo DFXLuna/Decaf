@@ -901,14 +901,9 @@ bool EQStatementNode::typeCheck( TableManager* tm ){
             return true;
         }
         else{
-            string name;
-            if(left->getID(name)){
-                cout << "Error: Invalid assignment to symbol '" 
-                << name << "'." << endl;
-            }
-            else{
-                cout << "Error: malformed syntax tree" << endl;
-            }
+            cout << "Error: Invalid assignment of type " 
+            << exprType->getName() << " to type " << nameType->getName()
+            << endl;
             return false;
         }
     }
@@ -919,7 +914,7 @@ bool EQStatementNode::typeCheck( TableManager* tm ){
             << "' is used before it is defined." << endl;
         }
         else{
-            cout << "Error: malformed syntax tree" << endl;
+            cout << "Error: can't resolve type" << endl;
         }
         return false;
     }
@@ -1184,7 +1179,7 @@ void LocalVarDecIDNode::populateTables( TableManager* tm ){
         tm->addTypeInst(type, id);
     }
     else{
-        cout << "Error: Invalid type '" << id << "'" << endl;
+        cout << "Error: Invalid type for symbol'" << id << "'" << endl;
     }
 }
 

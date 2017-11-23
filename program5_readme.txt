@@ -28,6 +28,11 @@ table.
 
 - Method and constructor overloading isn't currently supported yet.
 
+- There isn't currently a way for the program to verify if a return type
+matches the return expression or if there even is a return expression.
+
+- Value initialization isn't handled yet.
+
 - There's a strange error where an assignment to an element in an array 
 fails if the statement is the first statement in a block. so
 "IntArray[1] = 1;" 
@@ -40,6 +45,3 @@ the grammar exactly allows a function call to look like this:
 "SomeArray[1]();" as well as this:
 "this();"
 Both of which are strange. They are treated as errors by the typechecker.
-
-- There isn't currently a way for the program to verify if a return type
-matches the return expression or if there even is a return expression.
