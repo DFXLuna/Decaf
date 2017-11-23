@@ -25,7 +25,7 @@
     Node* ttype;
 }
 
-//%destructor { delete $$; } <ttype>
+%destructor { delete $$; } <ttype>
 
 %type<ttype> newexpr expr vardecl name
 %type<ttype> multibrackets exprbrackets bracketset
@@ -89,6 +89,7 @@ classbody: LSBRACE vardecls condecls methdecls RSBRACE {
              $$ = new ClassBodyNode(0, 0, 0);
          }
          | LSBRACE error RSBRACE {
+            $$ = 0;
             printSemanticError( getyytext(),
                                 getCol(),
                                 getLine());
@@ -130,6 +131,7 @@ vardecl: typeid SEMICOLON {
            $$ = new IdMultiIdNode($1, $2, $3);
        }
        | error SEMICOLON {
+            $$ = 0;
             printSemanticError( getyytext(),
                                 getCol(),
                                 getLine());
@@ -154,18 +156,26 @@ condecl: ID LPAREN plist RPAREN block {
           $$ = new ConstructorDecNode($1, $3, $5);
        }
        | error block {
+           $$ = 0;
+           delete $2;
            printSemanticError( getyytext(),
                                getCol(),
                                getLine());
            yyerror(0);
        }
        | ID LPAREN error RPAREN block {
+           $$ = 0;
+           delete $1;
+           $5 = 0;
            printSemanticError( getyytext(),
                                getCol(),
                                getLine());
            yyerror(0);
        }
        | ID LPAREN plist RPAREN error {
+           $$ = 0;
+           delete $1;
+           delete $3;
            printSemanticError( getyytext(),
                                getCol(),
                                getLine());
@@ -183,12 +193,20 @@ methdecl: typeid LPAREN plist RPAREN block {
            $$ = new IDMethodDecNode($1, $2, $4, $6);;
        }
        | ID ID LPAREN error RPAREN block {
+            $$ = 0;
+            delete $1;
+            delete $2;
+            delete $6;
             printSemanticError( getyytext(),
                                 getCol(),
                                 getLine());
             yyerror(0);
        }
        | ID ID LPAREN plist RPAREN error {
+            $$ = 0;
+            delete $1;
+            delete $2;
+            delete $4;
             printSemanticError( getyytext(),
                                 getCol(),
                                 getLine());
