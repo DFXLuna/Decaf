@@ -1,0 +1,10 @@
+class m{
+    int a;
+    m b;
+    m(){
+        a = getI();
+    }
+    int getI(){
+        return 1;
+    }
+}

@@ -298,9 +298,7 @@ bool ConDeclsNode::typeCheck( TableManager* tm ){
     // Returning must be delayed to allow all decls to be processed
     bool toRet = true;
     if(right){
-        if(!right->typeCheck(tm)){
-            toRet = false;
-        }
+        toRet= right->typeCheck(tm);
     }
     if(!left || !left->typeCheck(tm)){
         toRet = false;
@@ -1034,12 +1032,13 @@ void WhileStatementNode::print(){
 ReturnStatementNode::ReturnStatementNode( Node* optexpr ): Node( optexpr, 0 ){}
 
 bool ReturnStatementNode::typeCheck( TableManager* tm ){
-    if( !left ){
-        return true;
-    }
-    else{
-        return left->typeCheck(tm);
-    }
+    // if( !left ){
+    //     return true;
+    // }
+    // else{
+    //     return left->typeCheck(tm);
+    // }
+    return true;
 }
 
 void ReturnStatementNode::print(){
@@ -1374,7 +1373,7 @@ void NameExprNode::print(){
 ArgListNode::ArgListNode( Node* args ): Node( args, 0 ){}
 
 bool ArgListNode::gatherArgs( TableManager* tm, vector<TypeDecl*>& result ){
-    if( !left || !left->gatherArgs( tm, result ) ){
+    if( left && !left->gatherArgs( tm, result ) ){
         return false;    
     }
     return true;
@@ -1615,18 +1614,38 @@ MethodCallNode::MethodCallNode( Node* name, Node* arglist ):
 Node( name, arglist ){}
 
 
-bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
-    MethDecl* temp = 0;
-    string name;
-    left->getID(name);
-    if( tm->tryLookup(name, temp) ){
-        result = temp->getRetType();
-        return true;
-    }
-    else {
-        cout << "Error: symbol '" << name << "' undefined." << endl;
+bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // type checking is also done here because only some expressions
+    // need to be type checked so passing it through get type 
+    // cuts down on call forwarding 
+    MethDecl* mptr = 0;
+    // Name node responsible for looking up methDecl
+    if( !left->tryGetType(tm, mptr) ){
         return false;
     }
+    result = mptr->getRetType();
+    // For errors
+    string funcName = mptr->getName();
+    // gather and check args
+    vector<TypeDecl*> argTypes;
+    if( !right->gatherArgs( tm, argTypes ) ){
+        cout << "Error: unrecognized symbol '" << funcName << "'" << endl;
+    }
+    vector<TypeDecl*> paramTypes = mptr->getArgTypes();
+    if( argTypes.size() != paramTypes.size() ){
+        cout << "Error: Incorrect argument count in function call "
+        << funcName << endl;
+        return false;
+    }
+    for(unsigned int i = 0; i < argTypes.size(); i++){
+        if(argTypes[i] != paramTypes[i]){
+            cout << "Error: argument " << i << " in function " << funcName
+            << endl << "Expected type " << paramTypes[i]->getName()
+            << "Actual type " << argTypes[i]->getName() << endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 void MethodCallNode::print(){

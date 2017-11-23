@@ -25,3 +25,6 @@ the grammar exactly allows a function call to look like this:
 "SomeArray[1]();" as well as this:
 "this();"
 Both of which are strange. They are treated as errors by the typechecker.
+
+- There isn't currently a way for the program to verify if a return type
+matches the return expression or if there even is a return expression.

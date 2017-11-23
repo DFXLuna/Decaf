@@ -1,7 +1,3 @@
-- final typechecking
-    - Method call in expr
-    - Method check return type
-    - Maybe optexpr
 - Enable error checking in Bison
 
 
