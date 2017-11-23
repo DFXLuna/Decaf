@@ -19,3 +19,9 @@ IntArray[1] = 1; only works if it is preceded by another statement in the
 block. This only affects arrays.
 
 - Error messages are vague and generally unhelpful.
+
+- The grammar for function calls as statements is just plain weird. Following
+the grammar exactly allows a function call to look like this:
+"SomeArray[1]();" as well as this:
+"this();"
+Both of which are strange. They are treated as errors by the typechecker.

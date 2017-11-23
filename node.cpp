@@ -69,12 +69,22 @@ int Node::gatherBrackets(){
     return -1;
 }
 
+bool Node::gatherArgs( TableManager* tm, vector<TypeDecl*>& result ){
+    cout << "Error: malformed syntax tree" << endl;
+    return false;
+}
+
 bool Node::typeCheck( TableManager* tm ){
     cout << "Error: malformed syntax tree" << endl;
     return false;
 }
 
 bool Node::tryGetType( TableManager* tm, TypeDecl*& result ){
+    cout << "Error: Malformed syntax tree" << endl;
+    return false;
+}
+
+bool Node::tryGetType( TableManager* tm, MethDecl*& result ){
     cout << "Error: Malformed syntax tree" << endl;
     return false;
 }
@@ -923,17 +933,18 @@ FuncStatementNode::FuncStatementNode( Node* name, Node* arglist ):
 Node( name, arglist ){}
 
 bool FuncStatementNode::typeCheck( TableManager* tm ){
-    string funcName;
-    left->getID(funcName);
     MethDecl* mptr = 0;
-    // check name
-    if( !tm->tryLookup(funcName, mptr) ){
-        cout << "Error: symbol '" << funcName << "' undefined." << endl;
+    // Name node responsible for looking up methDecl
+    if( !left->tryGetType(tm, mptr) ){
         return false;
     }
+    // For errors
+    string funcName = mptr->getName();
     // gather and check args
     vector<TypeDecl*> argTypes;
-    right->gatherArgs(argTypes);
+    if( !right->gatherArgs( tm, argTypes ) ){
+        cout << "Error: unrecognized symbol '" << funcName << "'" << endl;
+    }
     vector<TypeDecl*> paramTypes = mptr->getArgTypes();
     if( argTypes.size() != paramTypes.size() ){
         cout << "Error: Incorrect argument count in function call "
@@ -1223,6 +1234,27 @@ bool NameIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     }
 }
 
+bool NameIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
+    MethDecl* temp = 0;
+    string id;
+    if(left && left->getID(id)){
+        if(tm->tryLookup(id, temp)){
+            result = temp;
+            return true;
+        }
+        else{
+            cout << "Error: symbol '" << id << "' undefined." << endl;
+            return false;
+        }
+    }
+    else{
+        cout << "Error: Malformed syntax tree" << endl;
+        return false;
+    }
+}
+
+
+
 void NameIdNode::print(){
     cout << "<name> -> id" << endl;
 }
@@ -1232,6 +1264,34 @@ void NameIdNode::print(){
 NameDotIdNode::NameDotIdNode( Node* name, Node* Id ): Node( name, Id ){}
 
 bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // Use table manager Name resolution. Resolve on type from name node
+    TypeDecl* name = 0;
+    if(!left){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if(!left->tryGetType(tm, name) ){
+        cout << "Error: cannot resolve name" << endl;
+        return false;
+    }
+    string typeName = name->getName();
+    
+    if(!right){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    string ID;
+    if(!right->getID(ID)){
+        cout << "Error: malformed sytnax tree" << endl;
+        return false;
+    }
+    if( tm->searchLocalTable(typeName, ID, result) ){
+        return true;
+    }
+    return false;
+}
+
+bool NameDotIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
     // Use table manager Name resolution. Resolve on type from name node
     TypeDecl* name = 0;
     if(!left){
@@ -1313,6 +1373,13 @@ void NameExprNode::print(){
 // Arglist Nodes
 ArgListNode::ArgListNode( Node* args ): Node( args, 0 ){}
 
+bool ArgListNode::gatherArgs( TableManager* tm, vector<TypeDecl*>& result ){
+    if( !left || !left->gatherArgs( tm, result ) ){
+        return false;    
+    }
+    return true;
+}
+
 void ArgListNode::print(){
     if(left){
         cout << "<arglist> -> <arg>" << endl;
@@ -1324,6 +1391,29 @@ void ArgListNode::print(){
 }
 
 ArgNode::ArgNode( Node* expr, Node* next ): Node( expr, next ){}
+
+bool ArgNode::gatherArgs( TableManager* tm, vector<TypeDecl*>& result ){
+    if(left){
+        TypeDecl* temp = 0;
+        if(left->tryGetType( tm, temp )){
+            result.push_back(temp);
+        }
+        else {
+            cout << "Error: cannot gather function arguments" << endl;
+            return false;
+        }
+    }
+    else{
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if(right){
+        if( !right->gatherArgs( tm, result ) ){
+            return false;
+        }
+    }
+    return true;
+}
 
 void ArgNode::print(){
     if(right){
@@ -1366,6 +1456,7 @@ OptExprNode::OptExprNode( Node* expr ): Node( expr, 0 ){}
 bool OptExprNode::typeCheck( TableManager* tm ){
     if( !left ){
         cout << "Error: malformed syntax tree" << endl;
+        return false;
     }
     else{
         return left->typeCheck( tm ); 

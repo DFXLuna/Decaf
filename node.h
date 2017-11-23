@@ -31,6 +31,10 @@ public:
     // count the number of brackets in a multibracket set
     int virtual gatherBrackets();
 
+    // Puts all of a function calls arguments into result
+    // returns false on any error or miscall
+    bool virtual gatherArgs( TableManager* tm, vector<TypeDecl*>& result );
+
     // Verifies constructors have the same name as containing class
     bool virtual checkConstructorNames();
 
@@ -38,7 +42,9 @@ public:
 
     bool virtual typeCheck( TableManager* tm );
 
+    // Get types from name nodes
     bool virtual tryGetType( TableManager* tm, TypeDecl*& result );
+    bool virtual tryGetType( TableManager* tm, MethDecl*& result );
 
     // Allows while nodes to check and see if its statement node is a block
     bool virtual isBlock();
@@ -357,6 +363,7 @@ class NameIdNode : public Node {
 public:
     NameIdNode( Node* id );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool tryGetType( TableManager* tm, MethDecl*& result );
     void print();
 };
 
@@ -364,6 +371,7 @@ class NameDotIdNode : public Node {
 public:
     NameDotIdNode( Node* name = 0, Node* Id = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool tryGetType( TableManager* tm, MethDecl*& result );
     void print();
 };
 
@@ -380,12 +388,14 @@ public:
 class ArgListNode : public Node {
 public:
     ArgListNode( Node* args = 0 );
+    bool gatherArgs( TableManager* tm, vector<TypeDecl*>& result );
     void print();
 };
 
 class ArgNode : public Node {
 public:
     ArgNode( Node* expr = 0, Node* next = 0 );
+    bool gatherArgs( TableManager* tm, vector<TypeDecl*>& result );
     void print();
 };
 

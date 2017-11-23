@@ -1,6 +1,6 @@
 - typechecking
     - cond statement
-- gather arg
+- expr typecheck?
 - Method check return type
 - Maybe fix anonymous scopes
 

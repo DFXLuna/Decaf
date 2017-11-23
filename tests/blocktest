@@ -1,0 +1,10 @@
+class a{
+    int b;
+    void c(){
+        int d;
+        a[] e;
+        a i;
+        f( b, i );
+    }
+    int f( int g, a h ){}
+}

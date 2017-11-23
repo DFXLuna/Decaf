@@ -26,7 +26,14 @@ TableManager::~TableManager(){
 }
 
 void TableManager::enterScope( string name ){
-    string scope = getCurrentScope() + "::" + name;
+    string scope;
+    if( name != "Global" ){
+        scope = getCurrentScope() + "::" + name;
+    }
+    else{
+        scope = name;
+    }
+
     Table* newScope = new Table( currTable, scope );
     if( currTable != 0 ){
         currTable->registerChild( newScope );
@@ -233,6 +240,30 @@ bool TableManager::searchLocalTable( string tableName, string varid, TypeDecl*& 
     return true;
 }
 
+bool TableManager::searchLocalTable( string tableName, string methid, MethDecl*& result ){
+    // Find table
+    Table* currScope = currTable;
+    string qualifiedTableName = "Global::" + tableName;
+    while( currTable->getParent() != 0 ){
+        currTable = currTable->getParent();
+    }
+    Table* localTable = 0;
+    vector<Table*> c = currTable->getChildren();
+    for(unsigned int i = 0; i < c.size(); i++){
+        if(c[i]->getName() == qualifiedTableName ){
+            localTable = c[i];
+            break;
+        }
+    }
+    // search for methid
+    if( !localTable || !localTable->localSearch(methid, result) ){
+        currTable = currScope;
+        return false;
+    }
+    currTable = currScope;
+    return true;
+}
+
 TypeDecl* TableManager::getIntType(){
     TypeDecl* toRet = 0;
     globalTypeTable->tryLookup("int", toRet);
@@ -401,6 +432,17 @@ bool Table::localSearch( string varid, TypeDecl*& result ){
         TypeInst* temp = 0;
         temp = &(it->second);
         result = temp->getType();
+        return true;
+    }
+    return false;
+}
+
+bool Table::localSearch( string methid, MethDecl*& result ){
+    map<string, MethDecl>::iterator it;
+    if( (it = methTable.find(methid)) != methTable.end() ){
+        MethDecl* temp = 0;
+        temp = &(it->second);
+        result = temp;
         return true;
     }
     return false;

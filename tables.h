@@ -63,8 +63,9 @@ public:
     // of the current class's type
     bool tryResolveThis( TypeDecl* result );
 
-    // finds table 'name' and searches only it for the var named id
+    // finds table 'name' and searches only it for the id
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
+    bool searchLocalTable( string tableName, string methid, MethDecl*& result );
     TypeDecl* getIntType();
 
 private:
@@ -102,6 +103,7 @@ public:
 
     // Searches only this table
     bool localSearch( string varid, TypeDecl*& result );
+    bool localSearch( string methid, MethDecl*& result );
     void print( int indent );
 private:
     Table* parent;
