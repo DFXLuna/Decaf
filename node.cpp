@@ -1437,6 +1437,66 @@ CondStatementNode::~CondStatementNode(){
     delete estmt;
 }
 
+bool CondStatementNode::typeCheck( TableManager* tm ){
+    if( !left || !right ){
+        cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    TypeDecl* temp = 0;
+    if( !left->tryGetType(tm, temp) || temp != tm->getIntType() ){
+        cout << "Error: Invalid condition in while loop" << endl;
+        return false;
+    }
+    // If there's an anonymous block, create a new table and populate it, then
+    // type check it. Very hacked
+    if( right->isBlock() ){
+        // Create anonymous table, populate and typecheck.
+        // Population is done here because renavigating to the anonymous 
+        // table would be difficult
+        tm->enterAnonymousScope();
+        string aScope = tm->getCurrentScope();
+        right->populateTables( tm );
+        if( right->typeCheck( tm ) ){
+            tm->exitScope();
+        }
+        else{
+            tm->exitScope();
+            return false;
+        }
+    }
+    else {
+        // No block no new table
+        if( !right->typeCheck(tm) ){
+            return false;
+        }
+    }
+    // Rinse and repeat for the possible else statement
+    if(estmt){
+        if( estmt->isBlock() ){
+            // Create anonymous table, populate and typecheck.
+            // Population is done here because renavigating to the anonymous 
+            // table would be difficult
+            tm->enterAnonymousScope();
+            string aScope = tm->getCurrentScope();
+            estmt->populateTables( tm );
+            if( estmt->typeCheck( tm ) ){
+                tm->exitScope();
+            }
+            else{
+                tm->exitScope();
+                return false;
+            }
+        }
+        else {
+            // No block no new table
+            if( !estmt->typeCheck(tm) ){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void CondStatementNode::print(){
     cout << "<stmt> -> <cond>" << endl
          << "<cond> -> if ( <expr> ) <stmt>";

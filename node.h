@@ -405,6 +405,7 @@ public:
 class CondStatementNode : public Node {
 public:
     CondStatementNode( Node* expr = 0, Node* stmt = 0, Node* estmt = 0 );
+    bool typeCheck( TableManager* tm );
     ~CondStatementNode();
     void print();
 private:

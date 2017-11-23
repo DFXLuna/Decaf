@@ -1,0 +1,21 @@
+class cond{
+    cond a;
+    int b;
+    cond func1(){
+        if(b){
+            ;
+            ;
+            if(1+2){}
+            else{
+                int c;
+                while(c){}
+            }
+        }
+        else{
+            int c;
+            while(c){
+                int c;
+            }
+        }
+    }
+}
