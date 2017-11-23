@@ -3,6 +3,7 @@
 TableManager::TableManager(){
     globalTypeTable = 0;
     currTable = 0;
+    anonymousBlockNum = 0;
     createGlobalTypeTable();
 
     // Add int and void to table

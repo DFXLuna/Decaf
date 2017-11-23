@@ -76,7 +76,7 @@ private:
     // A little bit of a hack to allow methods to have void return types
     // without allowing variables to have it
     TypeDecl* voidType;
-    int anonymousBlockNum = 0;
+    int anonymousBlockNum;
 };
 
 class Table{
