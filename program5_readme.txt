@@ -9,8 +9,7 @@ Global::ClassName
 Type: VarA;
 MethA: arg1 -> returnType
     Global::ClassName::MethA
-...
-
+    ...
 
 - method printing uses haskell-like syntax (I'm sorry) so it's of the form
  "name: argType1 -> argType2 -> argTypex -> returnType"
@@ -19,6 +18,10 @@ MethA: arg1 -> returnType
 
 - During the table dump, constructors are listed just like methods
 and they list a return type of void.
+
+- Blocks without names(like those used in if and while statements) are named
+ BlockX, starting from 0. Each name will only ever used once throughout the 
+ program.
 
 - Arrays on types are stored as types, so they show up in the global type 
 table.
