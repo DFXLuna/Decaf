@@ -1,0 +1,27 @@
+class a{
+    a aObj;
+
+    void methV(){
+        return;
+    }
+    void meth2V(){}
+    void meth3V(){
+        return 1;
+    }
+    int methI(){
+        return 1;
+    }
+    int meth2I(){
+        return aObj;
+    }
+    int meth3I(){
+        return;
+    }
+    a meth1A(){
+        return aObj;
+    }
+    a meth2A(){}
+    a meth3A(){
+        return 1;
+    }
+}

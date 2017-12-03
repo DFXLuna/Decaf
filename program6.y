@@ -199,7 +199,7 @@ methdecl: typeid LPAREN plist RPAREN block {
             delete $6;
             printSemanticError( getyytext(),
                                 getCol(),
-                                getLine());
+                                getLine() );
             yyerror(0);
        }
        | ID ID LPAREN plist RPAREN error {
@@ -354,7 +354,7 @@ cond: IF LPAREN expr RPAREN stmt %prec THEN {
 ;
 
 optexpr: %empty {
-           $$ = new OptExprNode(0);
+           $$ = 0;
        }
        | expr {
            $$ = new OptExprNode($1);

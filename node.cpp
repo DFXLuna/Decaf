@@ -93,6 +93,11 @@ bool Node::isBlock(){
     return false;
 }
 
+bool Node::verifyReturn( TableManager* tm, string returnType ){
+    cout << "Error: Malformed syntax tree" << endl;
+    return false;
+}
+
 /////////////////////////////////////////
 
 IdNode::IdNode( string v ): Node( 0, 0 ){
@@ -591,7 +596,7 @@ void MethodDecNode::populateTables( TableManager* tm ){
                      << endl;
             }
             tm->enterScope(id);
-            if(block){ block->populateTables( tm ); }
+            if( block ){ block->populateTables( tm ); }
             else{ cout << "Error: Malformed syntax tree" << endl; }
             tm->exitScope();
         } 
@@ -601,17 +606,17 @@ void MethodDecNode::populateTables( TableManager* tm ){
 bool MethodDecNode::typeCheck(  TableManager* tm ){
     // Enter scope
     string name;
-    // uneeded but used to break up typeid
     string type;
-    if(!left->getTypeID(type, name)){
-        cout << "Error: malformed syntax tree" << endl;
+    if( !left->getTypeID( type, name ) ){
+        cout << "Error: cannot retrieve return type or " 
+        << "id from method declaration" << endl;
     }
-    if( !tm->navigateTo(name) ){
-        cout << "Error: malformed type table" << endl;
+    if( !tm->navigateTo( name ) ){
+        cout << "Error: cannot navigate to local type table" << endl;
         return false;
     }
     // Continue type check
-    if( !block || !block->typeCheck(tm) ){
+    if( !block || !block->typeCheck( tm ) || !block->verifyReturn( tm, type ) ){
         tm->exitScope();
         return false;
     }
@@ -642,12 +647,18 @@ VoidMethodDecNode::~VoidMethodDecNode(){
 void VoidMethodDecNode::populateTables( TableManager* tm ){
     if(left){ 
         string id;
-        if(!left->getID(id)){ cout << "Error: malformed syntax tree"; }
+        if(!left->getID(id)){ 
+            cout << "Error: cannot retrieve "
+            << "id from method declaration" << endl;
+        }
         // Process params
         vector<string> types;
         vector<string> ids;
         if(right){ right->gatherParams( types, ids ); }
-        else{ cout << "Error: malformed syntax tree" << endl; }
+        else{
+            cout << "Error: cannot get parameters for method '" << id
+            << "'." << endl;
+        }
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
         }
@@ -657,7 +668,9 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
         }
         tm->enterScope(id);
         if(block){ block->populateTables( tm ); }
-        else{ cout << "Error: Malformed syntax tree" << endl; }
+        else{
+            cout << "Error: Method '" << id << "' has no block" << endl;
+        }
         tm->exitScope();
    }     
 }
@@ -665,15 +678,16 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
 bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
     // Enter scope
     string name;
-    if(!left->getID(name)){
-        cout << "Error: malformed syntax tree" << endl;
+    if(!left->getID(name)){ 
+        cout << "Error: cannot retrieve "
+        << "id from method declaration" << endl;
     }
     if( !tm->navigateTo(name) ){
-        cout << "Error: malformed type table" << endl;
+        cout << "Error: cannot navigate to local symbol table" << endl;
         return false;
     }
     // Continue type check
-    if( !block || !block->typeCheck(tm) ){
+    if( !block || !block->typeCheck(tm) || !block->verifyReturn( tm, "void" ) ){
         tm->exitScope();
         return false;
     }
@@ -706,25 +720,32 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
    if(left){ 
         string id;
         string retType;
-        if(!left->getID(id)){ cout << "Error: malformed syntax tree" << endl; }
+        if(!left->getID(id)){
+            cout << "Error: cannot retrieve "
+            << "id from method declaration" << endl;
+        }
         if(!result->getID(retType)){
-            cout << "Error: malformed syntax tree" << endl;
+            cout << "Error: can't retrieve return type for method '" 
+             << id << "'." << endl;
         }
         // Process params
         vector<string> types;
         vector<string> ids;
         if(right){ right->gatherParams( types, ids ); }
-        else{ cout << "Error: malformed syntax tree" << endl; }
+        else{
+            cout << "Error: cannot get parameters for method '" << id
+            << "'." << endl;
+        }
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
         }
         if(!tm->addMethDecl( id, types, retType )){ 
             cout << "Error: Cannot add '" << id << "' to symbol table."
-                    << endl;
+            << endl;
         }
         tm->enterScope(id);
         if(block){ block->populateTables( tm ); }
-        else{ cout << "Error: Malformed syntax tree" << endl; }
+        else{ cout << "Error: Method '" << id << "' has no block" << endl; }
         tm->exitScope();
    }
 }
@@ -732,15 +753,23 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
 bool IDMethodDecNode::typeCheck(  TableManager* tm ){
     // Enter scope
     string name;
-    if(!left->getID(name)){
-        cout << "Error: malformed syntax tree" << endl;
+    string result;
+    if( !left->getID( name ) ){
+        cout << "Error: cannot retrieve "
+        << "id from method declaration" << endl;
+        return false;
     }
-    if( !tm->navigateTo(name) ){
-        cout << "Error: malformed type table" << endl;
+    if( !this->result->getID( result ) ){
+        cout << "Error: cannot retrieve return type for method '"
+        << name << "'." << endl;
+        return false;
+    }
+    if( !tm->navigateTo( name ) ){
+        cout << "Error: cannot navigate to local symbol table" << endl;
         return false;
     }
     // Continue type check
-    if( !block || !block->typeCheck(tm) ){
+    if( !block || !block->typeCheck( tm ) || !block->verifyReturn( tm, result ) ){
         tm->exitScope();
         return false;
     }
@@ -755,23 +784,6 @@ void IDMethodDecNode::print(){
     if(right){ right->print(); }
     if(block){ block->print(); }
 }
-
-/////////////////////////////////////////
-// Result Type Nodes
-// ResultTypeNode::ResultTypeNode( Node* type ): Node( type, 0 ){} 
-
-// void ResultTypeNode::print(){
-//     cout << "<result> -> <type>" << endl;
-//     if(left){ left->print(); }
-// }
-
-// ////
-
-// ResultVoidNode::ResultVoidNode(): Node( 0, 0 ){}
-
-// void ResultVoidNode::print(){
-//     cout << "<result> -> void" << endl;
-// }
 
 /////////////////////////////////////////
 // Parameter List Node
@@ -879,6 +891,10 @@ bool EmptyStatementNode::typeCheck( TableManager* tm ){
     return true;
 }
 
+bool EmptyStatementNode::verifyReturn( TableManager* tm, string returnType ){
+    return false;
+}
+
 void EmptyStatementNode::print(){
     cout << "<stmt> -> ;" << endl;
 }
@@ -918,6 +934,10 @@ bool EQStatementNode::typeCheck( TableManager* tm ){
         }
         return false;
     }
+}
+
+bool EQStatementNode::verifyReturn( TableManager* tm, string returnType ){
+    return false;
 }
 
 void EQStatementNode::print(){
@@ -961,6 +981,10 @@ bool FuncStatementNode::typeCheck( TableManager* tm ){
     return true;
 }
 
+bool FuncStatementNode::verifyReturn( TableManager* tm, string returnType ){
+    return false;
+}
+
 void FuncStatementNode::print(){
     cout << "<stmt> -> <name> ( <arglist> );" << endl;
     if(left){ left->print(); }
@@ -974,6 +998,10 @@ PrintStatementNode::PrintStatementNode( Node* arglist ): Node( arglist, 0 ){}
 // Print statement doesn't really need to be checked
 bool PrintStatementNode::typeCheck( TableManager* tm ){
     return true;
+}
+
+bool PrintStatementNode::verifyReturn( TableManager* tm, string returnType ){
+    return false;
 }
 
 void PrintStatementNode::print(){
@@ -1022,6 +1050,11 @@ bool WhileStatementNode::typeCheck( TableManager* tm ){
     
 }
 
+bool WhileStatementNode::verifyReturn( TableManager* tm , string returnType ){
+    if( right ){ return right->verifyReturn( tm, returnType ); }
+    return false;
+}
+
 void WhileStatementNode::print(){
     cout << "<stmt> -> while ( <expr> ) <stmt>;" << endl;
     if(left){ left->print(); }
@@ -1033,12 +1066,36 @@ void WhileStatementNode::print(){
 ReturnStatementNode::ReturnStatementNode( Node* optexpr ): Node( optexpr, 0 ){}
 
 bool ReturnStatementNode::typeCheck( TableManager* tm ){
-    // if( !left ){
-    //     return true;
-    // }
-    // else{
-    //     return left->typeCheck(tm);
-    // }
+    // A little bit of cheating because type checking is done in verify return
+    return true;
+}
+
+bool ReturnStatementNode::verifyReturn( TableManager* tm, string returnType ){
+    if( !left ){
+        if( returnType == "void" ){
+            return true;
+        }
+        cout << "Error: Expected return type '" << returnType << "' but "
+        << "found no return type." << endl;
+        return false;
+    }
+    TypeDecl* receivedType = 0;
+    TypeDecl* toCheckType = 0;
+    if( !tm->tryLookup( returnType, receivedType ) ){
+        cout << "Error: Return type of '" << returnType << "' not valid." 
+        << endl;
+        return false;
+    }
+    if( !left->tryGetType( tm, toCheckType ) ){
+        cout << "Error: Cannot retrieve type from expression" << endl;
+        return false;
+    }
+    if( receivedType != toCheckType ){
+        string errType = toCheckType->getName();
+        cout << "Error: expected return type '" << returnType 
+        << "' but found type '" << errType << "'." << endl;
+        return false;
+    }
     return true;
 }
 
@@ -1068,6 +1125,15 @@ bool BlockNode::typeCheck( TableManager* tm ){
 }
 
 bool BlockNode::isBlock(){ return true; }
+
+bool BlockNode::verifyReturn( TableManager* tm, string type ){
+    if( !right && type != "void" ){
+        cout << "Error: Missing return type" << endl; 
+        return false;
+    }
+    if( right && !right->verifyReturn( tm, type ) ){ return false; }
+    return true;
+}
 
 void BlockNode::print(){
     cout << "<block> -> { ";
@@ -1113,6 +1179,13 @@ bool StatementsNode::typeCheck( TableManager* tm ){
         toRet = false;
     }
     return toRet;
+}
+
+bool StatementsNode::verifyReturn( TableManager* tm, string returnType ){
+    if( !left->verifyReturn( tm, returnType ) && ( !right || !right->verifyReturn( tm, returnType ) ) ){
+        return false;
+    }
+    return true;
 }
 
 void StatementsNode::print(){
@@ -1521,6 +1594,13 @@ bool OptExprNode::typeCheck( TableManager* tm ){
     else{
         return left->typeCheck( tm ); 
     }
+}
+
+bool OptExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    if( left->tryGetType( tm, result ) ){
+        return true;
+    }
+    return false;
 }
 
 void OptExprNode::print(){

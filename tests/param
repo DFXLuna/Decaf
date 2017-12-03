@@ -1,3 +1,5 @@
 class id {
-    abc( int a, int[] b, type a, type[] b){}
+    id( int a, int[] b, type a, type[] b){}
 }
+
+class type{}

@@ -97,7 +97,7 @@ string returnType ){
     }
 
     // Let table handle adding
-    if(currTable->tryAddEntry(name, args, ret, false)){
+    if( currTable->tryAddEntry(name, args, ret, false) ){
         return true;
     }
 
@@ -105,15 +105,19 @@ string returnType ){
 }
 
 bool TableManager::tryLookup( string name, TypeDecl*& result ){
-    if(globalTypeTable->tryLookup(name, result)){
+    if( name == "void" ){
+        result = voidType;
+        return true;
+    }
+    if( globalTypeTable->tryLookup( name, result ) ){
         return true;
     }
     return false;
 }
 
 bool TableManager::tryLookup( string name, MethDecl*& result ){
-    if(currTable != 0){
-        if(currTable->tryLookup(name, result)){
+    if( currTable != 0 ){
+        if( currTable->tryLookup( name, result ) ){
             return true;
         }
     }

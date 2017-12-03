@@ -48,6 +48,10 @@ public:
 
     // Allows while nodes to check and see if its statement node is a block
     bool virtual isBlock();
+
+    // Allows a node to check if its children contain a return statement as
+    // well as verifying the type
+    bool virtual verifyReturn( TableManager* tm, string returnType );
 protected:
     Node* left;
     Node* right;
@@ -266,6 +270,7 @@ public:
     void populateTables( TableManager* tm );
     bool typeCheck( TableManager* tm );
     bool isBlock();
+    bool verifyReturn( TableManager* tm , string returnType ); 
     void print();
 };
 
@@ -284,6 +289,7 @@ class StatementsNode : public Node {
 public:
     StatementsNode( Node* stmt = 0, Node* next = 0);
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -312,6 +318,7 @@ class EmptyStatementNode : public Node {
 public:
     EmptyStatementNode();
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -319,6 +326,7 @@ class EQStatementNode : public Node {
 public:
     EQStatementNode( Node* name = 0, Node* expr = 0 );
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -326,6 +334,7 @@ class FuncStatementNode : public Node {
 public:
     FuncStatementNode( Node* name = 0, Node* arglist = 0 );
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -333,6 +342,7 @@ class PrintStatementNode : public Node {
 public:
     PrintStatementNode( Node* arglist = 0 );
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -340,6 +350,7 @@ class WhileStatementNode : public Node {
 public:
     WhileStatementNode( Node* expr = 0, Node* stmt = 0 );
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -347,6 +358,7 @@ class ReturnStatementNode : public Node {
 public:
     ReturnStatementNode( Node* optexpr = 0 );
     bool typeCheck( TableManager* tm );
+    bool verifyReturn( TableManager* tm, string returnType );
     void print();
 };
 
@@ -421,6 +433,7 @@ class OptExprNode : public Node {
 public:
     OptExprNode( Node* expr = 0 );
     bool typeCheck( TableManager* tm );
+    bool tryGetType( TableManager* tm, TypeDecl*& result );
     void print();
 };
 
