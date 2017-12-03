@@ -3,7 +3,7 @@
     #include<iostream>
     #include<sstream>
     #include<string>
-    #include"program5.tab.h"
+    #include"program6.tab.h"
     using namespace std;
     int col = 1;
     string currText;
@@ -40,7 +40,7 @@
     }
 %}
 
-%option outfile ="program5_lex.cpp"
+%option outfile ="program6_lex.cpp"
 %option noyywrap
 %option yylineno
 
