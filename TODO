@@ -1,3 +1,17 @@
+- Method and constructor overloading isn't currently supported yet.
+
+- There isn't currently a way for the program to verify if a return type
+matches the return expression or if there even is a return expression.
+
+- Value initialization isn't handled yet.
+
+- There's a strange error where an assignment to an element in an array 
+fails if the statement is the first statement in a block. so
+"IntArray[1] = 1;" 
+only works if it's not the first statement in a block.
+
+- Error messages are vague and generally unhelpful.
+
 Victory lap:
 - fix nameexpr
 - Fix method overloading?
