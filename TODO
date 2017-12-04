@@ -1,7 +1,5 @@
 - Method and constructor overloading isn't currently supported yet.
 
-- Value initialization isn't handled yet.
-
 - There's a strange error where an assignment to an element in an array 
 fails if the statement is the first statement in a block. so
 "IntArray[1] = 1;" 

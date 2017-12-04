@@ -125,7 +125,7 @@ bool TypeIdNode::getTypeID( string& type, string& ID ){
         return true;
     }
     else{
-        cout << "Error: malformed tree" << endl;
+        cout << "Error: Malformed syntax tree" << endl;
         return false;
     }
 
@@ -159,7 +159,7 @@ bool ClassDecNode::checkConstructorNames(){
     string name;
     if( right->getID(name) ){
         if( !left ){
-            cout << "Error: malformed syntax tree" << endl;
+            cout << "Error: Malformed syntax tree" << endl;
             return false;
         }
         if( !left->passConstructorNames(name) ){
@@ -167,7 +167,7 @@ bool ClassDecNode::checkConstructorNames(){
         }
     }
     else{
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot retrieve id of class declaration" << endl;
         return false;
     }
     return true;
@@ -176,13 +176,13 @@ bool ClassDecNode::checkConstructorNames(){
 void ClassDecNode::populateTables( TableManager* tm ){
     // Name table
     string name;
-    if(!right->getID(name)){ cout << "Error: Malformed syntax tree" << endl; }
+    if(!right->getID(name)){ cout << "Error: Cannot retrieve id of class declaration" << endl; }
     // Check constructor names
     checkConstructorNames();
     // Populate table
     tm->enterScope(name);
     if(left){ left->populateTables(tm); }
-    else{ cout << "Error: Malformed syntax tree" << endl; }
+    else{ cout << "Error: Cannot populate type tables" << endl; }
     tm->exitScope();
 }
 
@@ -190,11 +190,11 @@ bool ClassDecNode::typeCheck( TableManager* tm ){
     // Move to current scope
     string name;
     if( !right->getID(name) ){
-        cout << "Error: cannot retrieve class declaration name" << endl;
+        cout << "Error: Cannot retrieve class declaration name" << endl;
         return false;
     }
     if( !tm->navigateTo(name) ){
-        cout << "Error: cannot navigate to type table for '" 
+        cout << "Error: Cannot navigate to type table for '" 
         << name << "'." << endl;
         return false;
     }
@@ -396,7 +396,7 @@ void VarTypeIdNode::populateTables( TableManager* tm ){
             tm->addTypeInst(type, id);
         }
         else{
-            cout << "Error: malformed syntax tree" << endl;
+            cout << "Error: Cannot retrieve id of variable" << endl;
         }
     }
 }
@@ -518,7 +518,7 @@ Node( id, plist ){
 bool ConstructorDecNode::passConstructorNames( string name ){
     string conName;
     if( !left->getID(conName) ){
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot retrieve id of constructor" << endl;
         return false;
     }
     if( name != conName ){
@@ -537,7 +537,10 @@ void ConstructorDecNode::populateTables( TableManager* tm ){
             vector<string> types;
             vector<string> ids;
             if(right){ right->gatherParams( types, ids ); }
-            else{ cout << "Error: malformed syntax tree" << endl; }
+            else{
+                cout << "Error: Cannot gather parameters for method '" 
+                << id << "'." << endl;
+            }
             if( tm->verifyTypes( types ) ){
                 tm->addTypes( types );
             }
@@ -547,7 +550,6 @@ void ConstructorDecNode::populateTables( TableManager* tm ){
             }
             tm->enterScope(id);
             if(block){ block->populateTables( tm ); }
-            else{ cout << "Error: Malformed syntax tree" << endl; }
             tm->exitScope();
         } 
    }  
@@ -557,10 +559,10 @@ bool ConstructorDecNode::typeCheck( TableManager* tm ){
     // Enter scope
     string name;
     if(!left->getID(name)){
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot retrieve id for constructor" << endl;
     }
     if( !tm->navigateTo(name) ){
-        cout << "Error: malformed type table" << endl;
+        cout << "Error: navigate to local type table" << endl;
         return false;
     }
     // Continue type check
@@ -607,7 +609,10 @@ void MethodDecNode::populateTables( TableManager* tm ){
             vector<string> types;
             vector<string> ids;
             if(right){ right->gatherParams( types, ids ); }
-            else{ cout << "Error: malformed syntax tree" << endl; }
+            else{
+                cout << "Error: Cannot gather parameters for method '" 
+                << id << "'."<< endl;
+            }
             if( tm->verifyTypes( types ) ){
                 tm->addTypes( types );
             }
@@ -628,7 +633,7 @@ bool MethodDecNode::typeCheck(  TableManager* tm ){
     string name;
     string type;
     if( !left->getTypeID( type, name ) ){
-        cout << "Error: cannot retrieve return type or " 
+        cout << "Error: Cannot retrieve return type or " 
         << "id from method declaration" << endl;
     }
     // Main check
@@ -636,7 +641,7 @@ bool MethodDecNode::typeCheck(  TableManager* tm ){
         tm->registerMain();
     }
     if( !tm->navigateTo( name ) ){
-        cout << "Error: cannot navigate to local type table" << endl;
+        cout << "Error: Cannot navigate to local type table" << endl;
         return false;
     }
     // Continue type check
@@ -672,7 +677,7 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
     if(left){ 
         string id;
         if(!left->getID(id)){ 
-            cout << "Error: cannot retrieve "
+            cout << "Error: Cannot retrieve "
             << "id from method declaration" << endl;
         }
         // Process params
@@ -680,7 +685,7 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
         vector<string> ids;
         if(right){ right->gatherParams( types, ids ); }
         else{
-            cout << "Error: cannot get parameters for method '" << id
+            cout << "Error: Cannot get parameters for method '" << id
             << "'." << endl;
         }
         if( tm->verifyTypes( types ) ){
@@ -703,7 +708,7 @@ bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
     // Enter scope
     string name;
     if(!left->getID(name)){ 
-        cout << "Error: cannot retrieve "
+        cout << "Error: Cannot retrieve "
         << "id from method declaration" << endl;
     }
     // Main check
@@ -711,7 +716,7 @@ bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
         tm->registerMain();
     }
     if( !tm->navigateTo(name) ){
-        cout << "Error: cannot navigate to local symbol table" << endl;
+        cout << "Error: Cannot navigate to local symbol table" << endl;
         return false;
     }
     // Continue type check
@@ -749,7 +754,7 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         string id;
         string retType;
         if(!left->getID(id)){
-            cout << "Error: cannot retrieve "
+            cout << "Error: Cannot retrieve "
             << "id from method declaration" << endl;
         }
         if(!result->getID(retType)){
@@ -766,7 +771,7 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         vector<string> ids;
         if(right){ right->gatherParams( types, ids ); }
         else{
-            cout << "Error: cannot get parameters for method '" << id
+            cout << "Error: Cannot get parameters for method '" << id
             << "'." << endl;
         }
         if( tm->verifyTypes( types ) ){
@@ -788,17 +793,17 @@ bool IDMethodDecNode::typeCheck(  TableManager* tm ){
     string name;
     string result;
     if( !left->getID( name ) ){
-        cout << "Error: cannot retrieve "
+        cout << "Error: Cannot retrieve "
         << "id from method declaration" << endl;
         return false;
     }
     if( !this->result->getID( result ) ){
-        cout << "Error: cannot retrieve return type for method '"
+        cout << "Error: Cannot retrieve return type for method '"
         << name << "'." << endl;
         return false;
     }
     if( !tm->navigateTo( name ) ){
-        cout << "Error: cannot navigate to local symbol table" << endl;
+        cout << "Error: Cannot navigate to local symbol table" << endl;
         return false;
     }
     // Continue type check
@@ -1248,12 +1253,12 @@ void LocalVarDecNode::populateTables( TableManager* tm ){
     string id;
 
     if(left){ left->getID(type); }
-    else{ cout << "Error: Malformed Syntax Tree" << endl; }
+    else{ cout << "Error: Cannot retrieve type for local variable." << endl; }
     // this node only handles int types
     tm->forwardEntryGlobalTypeTable(type);
     
     if(right){ right->getID(id); }
-    else{ cout << "Error: Malformed Syntax Tree" << endl; }
+    else{ cout << "Error: Cannot retrieve id for local variable" << endl; }
     
     tm->addTypeInst(type, id);
 }
@@ -1277,9 +1282,9 @@ void LocalVarDecIDNode::populateTables( TableManager* tm ){
     string id;
 
     if(left){ left->getID(type); }
-    else{ cout << "Error: malformed syntax tree" << endl; }
+    else{ cout << "Error: Cannot retrieve id for local variable" << endl; }
     if(right){ right->getID(id); }
-    else{ cout << "Error: malformed syntax tree" << endl; }
+    else{ cout << "Error: Cannot retrieve id for local variable" << endl; }
 
     TypeDecl* temp = 0;
     if( tm->tryLookup(type, temp) ){
@@ -1348,7 +1353,7 @@ bool NameIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         }
     }
     else{
-        cout << "Error: Malformed syntax tree" << endl;
+        cout << "Error: Cannot retrieve id for variable" << endl;
         return false;
     }
 }
@@ -1367,7 +1372,7 @@ bool NameIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
         }
     }
     else{
-        cout << "Error: Malformed syntax tree" << endl;
+        cout << "Error: Cannot retrieve id for variable" << endl;
         return false;
     }
 }
@@ -1390,7 +1395,7 @@ bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         return false;
     }
     if(!left->tryGetType(tm, name) ){
-        cout << "Error: cannot resolve name" << endl;
+        cout << "Error: Cannot resolve name" << endl;
         return false;
     }
     string typeName = name->getName();
@@ -1401,7 +1406,7 @@ bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     }
     string ID;
     if(!right->getID(ID)){
-        cout << "Error: malformed sytnax tree" << endl;
+        cout << "Error: Cannot resolve id in expression" << endl;
         return false;
     }
     if( tm->searchLocalTable(typeName, ID, result) ){
@@ -1418,7 +1423,7 @@ bool NameDotIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
         return false;
     }
     if(!left->tryGetType(tm, name) ){
-        cout << "Error: cannot resolve name" << endl;
+        cout << "Error: Cannot resolve name" << endl;
         return false;
     }
     string typeName = name->getName();
@@ -1429,7 +1434,7 @@ bool NameDotIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
     }
     string ID;
     if(!right->getID(ID)){
-        cout << "Error: malformed sytnax tree" << endl;
+        cout << "Error: Cannot resolve id in expression" << endl;
         return false;
     }
     if( tm->searchLocalTable(typeName, ID, result) ){
@@ -1522,7 +1527,7 @@ bool ArgNode::gatherArgs( TableManager* tm, vector<TypeDecl*>& result ){
             result.push_back(temp);
         }
         else {
-            cout << "Error: cannot gather function arguments" << endl;
+            cout << "Error: Cannot gather function arguments" << endl;
             return false;
         }
     }
@@ -1700,7 +1705,6 @@ NullNode::NullNode(): Node( 0, 0 ){}
 
 
 bool NullNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    // No clue how to deal with this
     result = tm->getIntType();
     return true;
 }
@@ -2128,7 +2132,7 @@ bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl*& result ){
 
     }
     else{
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot resolve new expression" << endl;
         return false;
     }
 }
@@ -2158,7 +2162,7 @@ bool NewIdNode::tryGetType( TableManager* tm , TypeDecl*& result ){
         return false;
     }
     else{
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot resolve new expression" << endl;
         return false;
     }
 }
@@ -2191,7 +2195,7 @@ bool NewSimpleNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         return false;
     }
     else{
-        cout << "Error: malformed syntax tree" << endl;
+        cout << "Error: Cannot resolve new expression" << endl;
         return false;
     }
 }
