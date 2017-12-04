@@ -68,6 +68,10 @@ public:
     bool searchLocalTable( string tableName, string methid, MethDecl*& result );
     TypeDecl* getIntType();
 
+    // Managing mainCount
+    void registerMain();
+    bool hasOneMain();
+
 private:
     string appendInt( string str, int i );
     bool createGlobalTypeTable();
@@ -77,6 +81,7 @@ private:
     // without allowing variables to have it
     TypeDecl* voidType;
     int anonymousBlockNum;
+    int mainCount;
 };
 
 class Table{

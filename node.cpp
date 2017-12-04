@@ -185,20 +185,29 @@ void ClassDecNode::populateTables( TableManager* tm ){
 bool ClassDecNode::typeCheck( TableManager* tm ){
     // Move to current scope
     string name;
-    if(!right->getID(name)){
-        cout << "Error: malformed syntax tree" << endl;
+    if( !right->getID(name) ){
+        cout << "Error: cannot retrieve class declaration name" << endl;
+        return false;
     }
     if( !tm->navigateTo(name) ){
-        cout << "Error: malformed type table" << endl;
+        cout << "Error: cannot navigate to type table for '" 
+        << name << "'." << endl;
         return false;
     }
     // Begin type check cascade
     if(left && left->typeCheck( tm )){
         tm->exitScope();
+        if( !tm->hasOneMain() ){
+            cout << "Error: multiple definitions of main" << endl;
+            return false;
+        }
         return true;
     }
     // Leave scope
     tm->exitScope();
+    if( !tm->hasOneMain() ){
+        cout << "Error: multiple definitions of main" << endl;
+    }
     return false;
 }
 
@@ -611,6 +620,10 @@ bool MethodDecNode::typeCheck(  TableManager* tm ){
         cout << "Error: cannot retrieve return type or " 
         << "id from method declaration" << endl;
     }
+    // Main check
+    if( name == "main" ){
+        tm->registerMain();
+    }
     if( !tm->navigateTo( name ) ){
         cout << "Error: cannot navigate to local type table" << endl;
         return false;
@@ -682,6 +695,10 @@ bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
         cout << "Error: cannot retrieve "
         << "id from method declaration" << endl;
     }
+    // Main check
+    if( name == "main" ){
+        tm->registerMain();
+    }
     if( !tm->navigateTo(name) ){
         cout << "Error: cannot navigate to local symbol table" << endl;
         return false;
@@ -727,6 +744,11 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         if(!result->getID(retType)){
             cout << "Error: can't retrieve return type for method '" 
              << id << "'." << endl;
+        }
+        // Main check
+        if( id == "main" ){
+            tm->registerMain();
+            cout << "Error: Incorrect return type for main" << endl;
         }
         // Process params
         vector<string> types;

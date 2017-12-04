@@ -1,0 +1,12 @@
+class a{  
+    a abc;  
+    int main(){
+        return 1;
+    }
+    void main(){
+        return;
+    }
+    a main(){
+        return abc;
+    }
+}

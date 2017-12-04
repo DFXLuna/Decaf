@@ -4,6 +4,7 @@ TableManager::TableManager(){
     globalTypeTable = 0;
     currTable = 0;
     anonymousBlockNum = 0;
+    mainCount = 0;
     createGlobalTypeTable();
 
     // Add int and void to table
@@ -285,6 +286,14 @@ bool TableManager::navigateTo( string nameOfChild ){
         }
     }
     return false;
+}
+
+void TableManager::registerMain(){
+    mainCount++;
+}
+
+bool TableManager::hasOneMain(){
+    return (mainCount == 1);
 }
 
 string TableManager::appendInt( string str, int i ){
