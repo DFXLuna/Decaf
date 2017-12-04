@@ -46,8 +46,9 @@ public:
     bool virtual tryGetType( TableManager* tm, TypeDecl*& result );
     bool virtual tryGetType( TableManager* tm, MethDecl*& result );
 
-    // Allows while nodes to check and see if its statement node is a block
+    // Allows while nodes to check and see if a node is of a given type
     bool virtual isBlock();
+    bool virtual isThis();
 
     // Allows a node to check if its children contain a return statement as
     // well as verifying the type
@@ -369,6 +370,7 @@ class ThisNode : public Node {
 public:
     ThisNode();
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool isThis();
     void print();
 };
 

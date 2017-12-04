@@ -93,6 +93,10 @@ bool Node::isBlock(){
     return false;
 }
 
+bool Node::isThis(){
+    return false;
+}
+
 bool Node::verifyReturn( TableManager* tm, string returnType ){
     cout << "Error: Malformed syntax tree" << endl;
     return false;
@@ -934,6 +938,11 @@ bool EQStatementNode::typeCheck( TableManager* tm ){
         return false;
     }
     if(left->tryGetType(tm, nameType) && right->tryGetType(tm, exprType)){
+        // Check to see if name is raw this node
+        if( left->isThis() ){
+            cout << "Error: invalid usage of 'this'." << endl;
+            return false;
+        }
         // Do comparison
         if(nameType == exprType){
             return true;
@@ -977,6 +986,10 @@ bool FuncStatementNode::typeCheck( TableManager* tm ){
     MethDecl* mptr = 0;
     // Name node responsible for looking up methDecl
     if( !left->tryGetType(tm, mptr) ){
+        return false;
+    }
+    if( left->isThis() ){
+        cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
     // For errors
@@ -1302,6 +1315,10 @@ bool ThisNode::tryGetType( TableManager* tm, TypeDecl*& result ){
 
 }
 
+bool ThisNode::isThis(){
+    return true;
+}
+
 void ThisNode::print(){
     cout << "<name> -> this" << endl;
 }
@@ -1429,6 +1446,10 @@ bool NameExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     TypeDecl* nameType = 0;
     if(!left){
         cout << "Error: malformed syntax tree" << endl;
+        return false;
+    }
+    if( left->isThis() ){
+        cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
     if( !left->tryGetType(tm, nameType) ){
@@ -1724,6 +1745,10 @@ bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     MethDecl* mptr = 0;
     // Name node responsible for looking up methDecl
     if( !left->tryGetType(tm, mptr) ){
+        return false;
+    }
+    if( left->isThis() ){
+        cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
     result = mptr->getRetType();
