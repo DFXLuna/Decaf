@@ -201,17 +201,24 @@ bool ClassDecNode::typeCheck( TableManager* tm ){
     // Begin type check cascade
     if(left && left->typeCheck( tm )){
         tm->exitScope();
-        if( !tm->hasOneMain() ){
+        if( tm->getMainCount() > 1 ){
             cout << "Error: multiple definitions of main" << endl;
             return false;
+        }
+        else if( tm->getMainCount() < 1 ){
+            cout << "Error: main not defined" << endl;
         }
         return true;
     }
     // Leave scope
     tm->exitScope();
-    if( !tm->hasOneMain() ){
-        cout << "Error: multiple definitions of main" << endl;
-    }
+        if( tm->getMainCount() > 1 ){
+            cout << "Error: multiple definitions of main" << endl;
+            return false;
+        }
+        else if( tm->getMainCount() < 1 ){
+            cout << "Error: main not defined" << endl;
+        }
     return false;
 }
 

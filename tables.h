@@ -70,7 +70,7 @@ public:
 
     // Managing mainCount
     void registerMain();
-    bool hasOneMain();
+    int getMainCount();
 
 private:
     string appendInt( string str, int i );

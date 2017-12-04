@@ -292,8 +292,8 @@ void TableManager::registerMain(){
     mainCount++;
 }
 
-bool TableManager::hasOneMain(){
-    return (mainCount == 1);
+int TableManager::getMainCount(){
+    return mainCount;
 }
 
 string TableManager::appendInt( string str, int i ){
