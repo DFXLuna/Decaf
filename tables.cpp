@@ -116,9 +116,9 @@ bool TableManager::tryLookup( string name, TypeDecl*& result ){
     return false;
 }
 
-bool TableManager::tryLookup( string name, MethDecl*& result ){
+bool TableManager::tryLookup( string name, vector<TypeDecl*> args, MethDecl*& result ){
     if( currTable != 0 ){
-        if( currTable->tryLookup( name, result ) ){
+        if( currTable->tryLookup( name, args, result ) ){
             return true;
         }
     }
@@ -246,7 +246,7 @@ bool TableManager::searchLocalTable( string tableName, string varid, TypeDecl*& 
     return true;
 }
 
-bool TableManager::searchLocalTable( string tableName, string methid, MethDecl*& result ){
+bool TableManager::searchLocalTable( string tableName, string methid, vector<TypeDecl*> args, MethDecl*& result ){
     // Find table
     Table* currScope = currTable;
     string qualifiedTableName = "Global::" + tableName;
@@ -262,7 +262,7 @@ bool TableManager::searchLocalTable( string tableName, string methid, MethDecl*&
         }
     }
     // search for methid
-    if( !localTable || !localTable->localSearch(methid, result) ){
+    if( !localTable || !localTable->localSearch(methid, args, result) ){
         currTable = currScope;
         return false;
     }
@@ -364,18 +364,19 @@ Table::~Table(){
     }
 }
 
-bool Table::tryLookup( string name, MethDecl*& result ){
+bool Table::tryLookup( string name, vector<TypeDecl*> args, MethDecl*& result ){
     // Check local table
-    map<string, MethDecl>::iterator it;
+    map< string, vector<MethDecl> >::iterator it;
     if( (it = methTable.find(name)) != methTable.end() ){
-        result = &(it->second);
-        return true;
+        for(unsigned int i = 0; i < it->second.size(); i++){
+            if( it->second[i].getArgTypes() == args ){
+                result = &(it->second[i]);
+                return true;
+            }
+        }
     }
     // Check parents tables
-    if(parent && parent->tryLookup(name, result)){
-        return true;
-    }
-
+    if( parent ){ return parent->tryLookup(name, args, result); }
     return false;
 }
 
@@ -403,25 +404,17 @@ bool Table::tryAddEntry( string varName, TypeInst t ){
 
 bool Table::tryAddEntry( string methName, vector<TypeDecl*> argTypes,
 TypeDecl* returnType, bool forwardDecl ){
-    MethDecl* lookup = 0;
-    MethDecl toInsert(methName, argTypes, returnType, forwardDecl);
-    if(!tryLookup(methName, lookup)){
-        methTable[methName] = toInsert;
-        return true;
+    MethDecl toInsert( methName, argTypes, returnType, forwardDecl );
+    map< string, vector<MethDecl> >::iterator it;
+    if( ( it = methTable.find(methName) ) != methTable.end() ){
+        it->second.push_back( toInsert );
     }
     else{
-        if(lookup->isForward() && *lookup == toInsert){
-            // Resolve forwardDecl
-            lookup->resolveForward();
-            return true;
-        }
-        else{
-            return false;
-        }
+        vector<MethDecl> temp;
+        temp.push_back( toInsert );
+        methTable[methName] = temp;
     }
-    // Something strange happened
-    cout << "Hope you got insurance" << endl;
-    return false;
+    return true;
 }
 
 Table* Table::getParent(){
@@ -451,13 +444,15 @@ bool Table::localSearch( string varid, TypeDecl*& result ){
     return false;
 }
 
-bool Table::localSearch( string methid, MethDecl*& result ){
-    map<string, MethDecl>::iterator it;
+bool Table::localSearch( string methid, vector<TypeDecl*> args, MethDecl*& result ){
+    map< string, vector<MethDecl> >::iterator it;
     if( (it = methTable.find(methid)) != methTable.end() ){
-        MethDecl* temp = 0;
-        temp = &(it->second);
-        result = temp;
-        return true;
+        for(unsigned int i = 0; i < it->second.size(); i++){
+            if( it->second[i].getArgTypes() == args ){
+                result = &(it->second[i]);
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -470,10 +465,12 @@ void Table::print( int indent ){
         for(int i = 0; i < indent; i++){ cout << "  "; }
         it->second.print();
     }
-    for( map<string, MethDecl>::iterator it = methTable.begin();
+    for( map< string, vector<MethDecl> >::iterator it = methTable.begin();
     it != methTable.end(); it++){
+        for(unsigned int j = 0; j < it->second.size(); j++){
         for(int i = 0; i < indent; i++){ cout << "  "; }
-        it->second.print();
+            it->second[j].print();
+        }
     }
     cout << endl;
 

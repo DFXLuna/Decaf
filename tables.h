@@ -44,7 +44,7 @@ public:
     
     // If successful, result points to an entry in the method declaration tree
     // and returns true
-    bool tryLookup( string name, MethDecl*& result );
+    bool tryLookup( string name, vector<TypeDecl*> args, MethDecl*& result );
 
     // These control the global type table
     // Declare a type without a width
@@ -65,7 +65,7 @@ public:
 
     // finds table 'name' and searches only it for the id
     bool searchLocalTable( string tableName, string varid, TypeDecl*& result );
-    bool searchLocalTable( string tableName, string methid, MethDecl*& result );
+    bool searchLocalTable( string tableName, string methid, vector<TypeDecl*> args, MethDecl*& result );
     TypeDecl* getIntType();
 
     // Managing mainCount
@@ -93,7 +93,7 @@ public:
     bool tryLookup( string name, TypeInst*& result );
     // If successful, result points to an entry in the tree of method
     // declarations and returns true
-    bool tryLookup( string name, MethDecl*& result );
+    bool tryLookup( string name, vector<TypeDecl*> args, MethDecl*& result );
     // Add variable to typetable
     bool tryAddEntry( string varName, TypeInst type );
     // Add method declaration to type table
@@ -108,12 +108,12 @@ public:
 
     // Searches only this table
     bool localSearch( string varid, TypeDecl*& result );
-    bool localSearch( string methid, MethDecl*& result );
+    bool localSearch( string methid, vector<TypeDecl*> args, MethDecl*& result );
     void print( int indent );
 private:
     Table* parent;
     map<string, TypeInst> typeTable;
-    map<string, MethDecl> methTable;
+    map< string, vector<MethDecl> > methTable;
     // Needed for dumping table and freeing memory
     vector<Table*> children;
     string name;

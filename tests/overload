@@ -1,0 +1,6 @@
+class m{
+    int main(){}
+    void foo(){}
+    void foo( int a, m b){}
+    void foo( m c, m d ){}
+}

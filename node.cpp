@@ -84,7 +84,7 @@ bool Node::tryGetType( TableManager* tm, TypeDecl*& result ){
     return false;
 }
 
-bool Node::tryGetType( TableManager* tm, MethDecl*& result ){
+bool Node::tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result ){
     cout << "Error: Malformed syntax tree" << endl;
     return false;
 }
@@ -995,36 +995,42 @@ FuncStatementNode::FuncStatementNode( Node* name, Node* arglist ):
 Node( name, arglist ){}
 
 bool FuncStatementNode::typeCheck( TableManager* tm ){
+    // gather and check args
+    vector<TypeDecl*> argTypes;
+    if( !right->gatherArgs( tm, argTypes ) ){
+        cout << "Error: unrecognized function call." << endl;
+        return false;
+
+    }
     MethDecl* mptr = 0;
-    // Name node responsible for looking up methDecl
-    if( !left->tryGetType(tm, mptr) ){
+    // Name node responsible for looking up methDecl because it can resolve
+    // name.id(localized search) as well as plain id(full table)
+    if( !left->tryGetType( tm, argTypes, mptr ) ){
         return false;
     }
     if( left->isThis() ){
         cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
-    // For errors
-    string funcName = mptr->getName();
-    // gather and check args
-    vector<TypeDecl*> argTypes;
-    if( !right->gatherArgs( tm, argTypes ) ){
-        cout << "Error: unrecognized symbol '" << funcName << "'" << endl;
-    }
-    vector<TypeDecl*> paramTypes = mptr->getArgTypes();
-    if( argTypes.size() != paramTypes.size() ){
-        cout << "Error: Incorrect argument count in function call "
-        << funcName << endl;
-        return false;
-    }
-    for(unsigned int i = 0; i < argTypes.size(); i++){
-        if(argTypes[i] != paramTypes[i]){
-            cout << "Error: argument " << i << " in function " << funcName
-            << endl << "Expected type " << paramTypes[i]->getName()
-            << "Actual type " << argTypes[i]->getName() << endl;
-            return false;
-        }
-    }
+
+    // Because the arg types are used to lookup the function pointer, they
+    // get checked in the call to tryGetType
+    // // For errors
+    // string funcName = mptr->getName();
+    // vector<TypeDecl*> paramTypes = mptr->getArgTypes();
+    // if( argTypes.size() != paramTypes.size() ){
+    //     cout << "Error: Incorrect argument count in function call "
+    //     << funcName << endl;
+    //     return false;
+    // }
+    // for(unsigned int i = 0; i < argTypes.size(); i++){
+    //     if(argTypes[i] != paramTypes[i]){
+    //         cout << "Error: argument " << i << " in function " << funcName
+    //         << endl << "Expected type " << paramTypes[i]->getName()
+    //         << "Actual type " << argTypes[i]->getName() << endl;
+    //         return false;
+    //     }
+    // }
     return true;
 }
 
@@ -1358,11 +1364,12 @@ bool NameIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     }
 }
 
-bool NameIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
+bool NameIdNode::tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result ){
+    // Lookup has to occur here to deal with resolving id(full table) and name.id(localized search)
     MethDecl* temp = 0;
     string id;
     if(left && left->getID(id)){
-        if(tm->tryLookup(id, temp)){
+        if(tm->tryLookup(id, args, temp)){
             result = temp;
             return true;
         }
@@ -1390,39 +1397,39 @@ NameDotIdNode::NameDotIdNode( Node* name, Node* Id ): Node( name, Id ){}
 bool NameDotIdNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     // Use table manager Name resolution. Resolve on type from name node
     TypeDecl* name = 0;
-    if(!left){
+    if( !left ){
         cout << "Error: malformed syntax tree" << endl;
         return false;
     }
-    if(!left->tryGetType(tm, name) ){
+    if( !left->tryGetType(tm, name) ){
         cout << "Error: Cannot resolve name" << endl;
         return false;
     }
     string typeName = name->getName();
     
-    if(!right){
+    if( !right ){
         cout << "Error: malformed syntax tree" << endl;
         return false;
     }
     string ID;
-    if(!right->getID(ID)){
+    if( !right->getID(ID) ){
         cout << "Error: Cannot resolve id in expression" << endl;
         return false;
     }
-    if( tm->searchLocalTable(typeName, ID, result) ){
+    if( tm->searchLocalTable( typeName, ID, result ) ){
         return true;
     }
     return false;
 }
 
-bool NameDotIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
+bool NameDotIdNode::tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result ){
     // Use table manager Name resolution. Resolve on type from name node
     TypeDecl* name = 0;
-    if(!left){
+    if( !left ){
         cout << "Error: malformed syntax tree" << endl;
         return false;
     }
-    if(!left->tryGetType(tm, name) ){
+    if( !left->tryGetType( tm, name) ){
         cout << "Error: Cannot resolve name" << endl;
         return false;
     }
@@ -1433,11 +1440,11 @@ bool NameDotIdNode::tryGetType( TableManager* tm, MethDecl*& result ){
         return false;
     }
     string ID;
-    if(!right->getID(ID)){
+    if( !right->getID(ID) ){
         cout << "Error: Cannot resolve id in expression" << endl;
         return false;
     }
-    if( tm->searchLocalTable(typeName, ID, result) ){
+    if( tm->searchLocalTable( typeName, ID, args, result ) ){
         return true;
     }
     return false;
@@ -1750,12 +1757,17 @@ Node( name, arglist ){}
 
 
 bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){
+    // gather and check args
+    vector<TypeDecl*> argTypes;
+    if( !right->gatherArgs( tm, argTypes ) ){
+        cout << "Error: unrecognized symbol function call." << endl;
+    }
     // type checking is also done here because only some expressions
     // need to be type checked so passing it through get type 
     // cuts down on call forwarding 
     MethDecl* mptr = 0;
     // Name node responsible for looking up methDecl
-    if( !left->tryGetType(tm, mptr) ){
+    if( !left->tryGetType(tm, argTypes, mptr) ){
         return false;
     }
     if( left->isThis() ){
@@ -1763,27 +1775,25 @@ bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         return false;
     }
     result = mptr->getRetType();
-    // For errors
-    string funcName = mptr->getName();
-    // gather and check args
-    vector<TypeDecl*> argTypes;
-    if( !right->gatherArgs( tm, argTypes ) ){
-        cout << "Error: unrecognized symbol '" << funcName << "'" << endl;
-    }
-    vector<TypeDecl*> paramTypes = mptr->getArgTypes();
-    if( argTypes.size() != paramTypes.size() ){
-        cout << "Error: Incorrect argument count in function call "
-        << funcName << endl;
-        return false;
-    }
-    for(unsigned int i = 0; i < argTypes.size(); i++){
-        if(argTypes[i] != paramTypes[i]){
-            cout << "Error: argument " << i << " in function " << funcName
-            << endl << "Expected type " << paramTypes[i]->getName()
-            << "Actual type " << argTypes[i]->getName() << endl;
-            return false;
-        }
-    }
+    // Because the arg types are used to lookup the function pointer, they
+    // get checked in the call to tryGetType
+    
+    // // For errors
+    // string funcName = mptr->getName();
+    // vector<TypeDecl*> paramTypes = mptr->getArgTypes();
+    // if( argTypes.size() != paramTypes.size() ){
+    //     cout << "Error: Incorrect argument count in function call "
+    //     << funcName << endl;
+    //     return false;
+    // }
+    // for(unsigned int i = 0; i < argTypes.size(); i++){
+    //     if(argTypes[i] != paramTypes[i]){
+    //         cout << "Error: argument " << i << " in function " << funcName
+    //         << endl << "Expected type " << paramTypes[i]->getName()
+    //         << "Actual type " << argTypes[i]->getName() << endl;
+    //         return false;
+    //     }
+    // }
     return true;
 }
 

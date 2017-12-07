@@ -44,7 +44,7 @@ public:
 
     // Get types from name nodes
     bool virtual tryGetType( TableManager* tm, TypeDecl*& result );
-    bool virtual tryGetType( TableManager* tm, MethDecl*& result );
+    bool virtual tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result );
 
     // Allows while nodes to check and see if a node is of a given type
     bool virtual isBlock();
@@ -378,7 +378,7 @@ class NameIdNode : public Node {
 public:
     NameIdNode( Node* id );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
-    bool tryGetType( TableManager* tm, MethDecl*& result );
+    bool tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result );
     void print();
 };
 
@@ -386,7 +386,7 @@ class NameDotIdNode : public Node {
 public:
     NameDotIdNode( Node* name = 0, Node* Id = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
-    bool tryGetType( TableManager* tm, MethDecl*& result );
+    bool tryGetType( TableManager* tm, vector<TypeDecl*> args, MethDecl*& result );
     void print();
 };
 

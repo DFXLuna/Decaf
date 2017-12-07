@@ -1,7 +1,7 @@
 class m{
     int a;
     m b;
-    m(){
+    int main(){
         a = getI();
     }
     int getI(){
