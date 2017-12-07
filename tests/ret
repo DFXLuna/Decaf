@@ -1,5 +1,6 @@
 class a{
     a aObj;
+    int[] arObj;
 
     void methV(){
         return;
@@ -23,5 +24,8 @@ class a{
     a meth2A(){}
     a meth3A(){
         return 1;
+    }
+    int[] meth1Ar(){
+        return arObj;
     }
 }
