@@ -6,7 +6,11 @@ class a{
     void main(){
         return;
     }
-    a main(){
+    a main( int g ){
         return abc;
+    }
+    void main( int h ){}
+    int main( int i ){
+        return 1;
     }
 }

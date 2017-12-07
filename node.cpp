@@ -602,6 +602,13 @@ void MethodDecNode::populateTables( TableManager* tm ){
             if( tm->verifyTypes( types ) ){
                 tm->addTypes( types );
             }
+            // Main check
+            if( id == "main" ){
+                tm->registerMain();
+                if( types.size() != 0 ){
+                    cout << "Error: main takes 0 arguments." << endl;
+                }
+            }
             if(!tm->addMethDecl( id, types, type )){ 
                 cout << "Error: Cannot add '" << id << "' to symbol table."
                      << endl;
@@ -621,10 +628,6 @@ bool MethodDecNode::typeCheck(  TableManager* tm ){
     if( !left->getTypeID( type, name ) ){
         cout << "Error: Cannot retrieve return type or " 
         << "id from method declaration" << endl;
-    }
-    // Main check
-    if( name == "main" ){
-        tm->registerMain();
     }
     if( !tm->navigateTo( name ) ){
         cout << "Error: Cannot navigate to local type table" << endl;
@@ -677,6 +680,13 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
         }
+        // Main check
+        if( id == "main" ){
+            tm->registerMain();
+            if( types.size() != 0 ){
+                cout << "Error: main takes 0 arguments." << endl;
+            }
+        }
         if(!tm->addMethDecl( id, types, "void" )){ 
             cout << "Error: Cannot add '" << id << "' to symbol table."
                     << endl;
@@ -696,10 +706,6 @@ bool VoidMethodDecNode::typeCheck(  TableManager* tm ){
     if(!left->getID(name)){ 
         cout << "Error: Cannot retrieve "
         << "id from method declaration" << endl;
-    }
-    // Main check
-    if( name == "main" ){
-        tm->registerMain();
     }
     if( !tm->navigateTo(name) ){
         cout << "Error: Cannot navigate to local symbol table" << endl;
@@ -747,11 +753,6 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
             cout << "Error: can't retrieve return type for method '" 
              << id << "'." << endl;
         }
-        // Main check
-        if( id == "main" ){
-            tm->registerMain();
-            cout << "Error: Incorrect return type for main" << endl;
-        }
         // Process params
         vector<string> types;
         vector<string> ids;
@@ -762,6 +763,14 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         }
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
+        }
+        // Main check
+        if( id == "main" ){
+            tm->registerMain();
+            cout << "Error: Incorrect return type for main" << endl;
+            if( types.size() != 0 ){
+                cout << "Error: main takes 0 arguments." << endl;
+            }
         }
         if(!tm->addMethDecl( id, types, retType )){ 
             cout << "Error: Cannot add '" << id << "' to symbol table."
