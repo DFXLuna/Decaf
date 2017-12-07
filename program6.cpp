@@ -35,7 +35,13 @@ int main(int argc, char* argv[]){
         // Type check
         for( unsigned int i = 0; i < tree.size(); i++ ){
             tree[i]->typeCheck( &t );
-        } 
+        }
+        if( t.getMainCount() > 1 ){
+            cout << "Error: Multiple definitions of main." << endl;
+        }
+        else if( t.getMainCount() < 1 ){
+            cout << "Error: main undefined." << endl;
+        }
     }
 
     t.dump();

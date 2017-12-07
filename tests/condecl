@@ -5,4 +5,5 @@ class id {
         int[] f;
         id[] g;
     }
+    void main(){}
 }

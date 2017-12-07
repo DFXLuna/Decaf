@@ -1,6 +1,13 @@
 class m{
-    int main(){}
-    void foo(){}
+    m(){}
+    m( int e, int f ){}
+    m ( m g ){}
+    int main(){
+        return foo();
+    }
+    int foo(){
+        return 1;
+    }
     void foo( int a, m b){}
     void foo( m c, m d ){}
 }

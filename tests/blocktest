@@ -6,5 +6,8 @@ class a{
         a i;
         f( b, i );
     }
-    int f( int g, a h ){}
+    int f( int g, a h ){
+        return 1;
+    }
+    void main(){}
 }
