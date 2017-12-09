@@ -602,6 +602,9 @@ void MethodDecNode::populateTables( TableManager* tm ){
             if( tm->verifyTypes( types ) ){
                 tm->addTypes( types );
             }
+            for( unsigned int i = 0; i < types.size(); i++ ){
+                tm->addTypeInst( types[i], ids[i] );
+            }
             // Main check
             if( id == "main" ){
                 tm->registerMain();
@@ -679,6 +682,9 @@ void VoidMethodDecNode::populateTables( TableManager* tm ){
         }
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
+        }
+        for( unsigned int i = 0; i < types.size(); i++ ){
+            tm->addTypeInst( types[i], ids[i] );
         }
         // Main check
         if( id == "main" ){
@@ -763,6 +769,9 @@ void IDMethodDecNode::populateTables( TableManager* tm ){
         }
         if( tm->verifyTypes( types ) ){
             tm->addTypes( types );
+        }
+        for( unsigned int i = 0; i < types.size(); i++ ){
+            tm->addTypeInst( types[i], ids[i] );
         }
         // Main check
         if( id == "main" ){
@@ -952,7 +961,7 @@ bool EQStatementNode::typeCheck( TableManager* tm ){
         }
         // Do comparison
         if(nameType == exprType){
-            return true;
+            return right->typeCheck( tm );
         }
         else{
             cout << "Error: Invalid assignment of type " 
@@ -1007,25 +1016,15 @@ bool FuncStatementNode::typeCheck( TableManager* tm ){
         cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
-
-    // Because the arg types are used to lookup the function pointer, they
-    // get checked in the call to tryGetType
-    // // For errors
-    // string funcName = mptr->getName();
-    // vector<TypeDecl*> paramTypes = mptr->getArgTypes();
-    // if( argTypes.size() != paramTypes.size() ){
-    //     cout << "Error: Incorrect argument count in function call "
-    //     << funcName << endl;
-    //     return false;
-    // }
-    // for(unsigned int i = 0; i < argTypes.size(); i++){
-    //     if(argTypes[i] != paramTypes[i]){
-    //         cout << "Error: argument " << i << " in function " << funcName
-    //         << endl << "Expected type " << paramTypes[i]->getName()
-    //         << "Actual type " << argTypes[i]->getName() << endl;
-    //         return false;
-    //     }
-    // }
+    // Check for constructor usage
+    TypeDecl* t = 0;
+    if( tm->tryLookup( mptr->getName(), t ) ){
+        // If this succeeds, the function name is a type name and must be
+        // a constructor
+        cout << "Error: constructor '" << mptr->getName() << "' used as a "
+        << "function." << endl;
+        return false;
+    }
     return true;
 }
 
@@ -1043,9 +1042,21 @@ void FuncStatementNode::print(){
 
 PrintStatementNode::PrintStatementNode( Node* arglist ): Node( arglist, 0 ){}
 
-// Print statement doesn't really need to be checked
 bool PrintStatementNode::typeCheck( TableManager* tm ){
-    return true;
+    vector<TypeDecl*> args;
+    if( !left->gatherArgs( tm , args ) ){
+        cout << "Error: Cannot gather arguments for print statement." << endl;
+        return false;
+    }
+    bool toRet = true;
+    for( unsigned int i = 0; i < args.size(); i++ ){
+        if( args[i] != tm->getIntType() ){
+            cout << "Error: argument " << i << " in print statement "
+            << "is not an int" << endl;
+            toRet = false;
+        }
+    }
+    return toRet;
 }
 
 bool PrintStatementNode::verifyReturn( TableManager* tm, string returnType ){
@@ -1068,7 +1079,7 @@ bool WhileStatementNode::typeCheck( TableManager* tm ){
         return false;
     }
     TypeDecl* temp = 0;
-    if( !left->tryGetType(tm, temp) || temp != tm->getIntType() ){
+    if( !left->tryGetType( tm, temp ) || !left->typeCheck( tm ) ){
         cout << "Error: Invalid condition in while loop" << endl;
         return false;
     }
@@ -1557,7 +1568,7 @@ void ArgNode::print(){
 }
 
 /////////////////////////////////////////
-// Conditional Expression Node
+// Conditional Statement Node
 CondStatementNode::CondStatementNode( Node* expr, Node* stmt, Node* estmt ):
 Node( expr, stmt ){
     this->estmt = estmt;
@@ -1681,6 +1692,10 @@ bool ExprNameNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     return false;
 }
 
+bool ExprNameNode::typeCheck( TableManager* tm ){
+    return true;
+}
+
 void ExprNameNode::print(){
     cout << "<expr> -> <name>" << endl;
     if(left){ left->print(); }
@@ -1694,6 +1709,10 @@ NumNode::NumNode(int v){
 
 bool NumNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     result = tm->getIntType();
+    return true;
+}
+
+bool NumNode::typeCheck( TableManager* tm ){
     return true;
 }
 
@@ -1711,6 +1730,10 @@ bool NullNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     return true;
 }
 
+bool NullNode::typeCheck( TableManager* tm ){
+    return true;
+}
+
 void NullNode::print(){
     cout << "<expr> -> null" << endl;
 }
@@ -1722,6 +1745,10 @@ ReadNode::ReadNode(): Node( 0, 0 ){}
 
 bool ReadNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
     result = tm->getIntType();
+    return true;
+}
+
+bool ReadNode::typeCheck( TableManager* tm ){
     return true;
 }
 
@@ -1738,6 +1765,10 @@ bool NewExprNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         return true;
     }
     return false;
+}
+
+bool NewExprNode::typeCheck( TableManager* tm ){
+    return left->typeCheck( tm );
 }
 
 void NewExprNode::print(){
@@ -1757,38 +1788,41 @@ bool MethodCallNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     if( !right->gatherArgs( tm, argTypes ) ){
         cout << "Error: unrecognized symbol function call." << endl;
     }
-    // type checking is also done here because only some expressions
-    // need to be type checked so passing it through get type 
-    // cuts down on call forwarding 
     MethDecl* mptr = 0;
     // Name node responsible for looking up methDecl
     if( !left->tryGetType(tm, argTypes, mptr) ){
         return false;
     }
+    result = mptr->getRetType();
+    return true;
+}
+
+
+bool MethodCallNode::typeCheck( TableManager* tm ){
+    // This node is implicitly type checked in tryGetType so this 
+    // is entirely redundant 
     if( left->isThis() ){
         cout << "Error: invalid usage of 'this'." << endl;
         return false;
     }
-    result = mptr->getRetType();
-    // Because the arg types are used to lookup the function pointer, they
-    // get checked in the call to tryGetType
-    
-    // // For errors
-    // string funcName = mptr->getName();
-    // vector<TypeDecl*> paramTypes = mptr->getArgTypes();
-    // if( argTypes.size() != paramTypes.size() ){
-    //     cout << "Error: Incorrect argument count in function call "
-    //     << funcName << endl;
-    //     return false;
-    // }
-    // for(unsigned int i = 0; i < argTypes.size(); i++){
-    //     if(argTypes[i] != paramTypes[i]){
-    //         cout << "Error: argument " << i << " in function " << funcName
-    //         << endl << "Expected type " << paramTypes[i]->getName()
-    //         << "Actual type " << argTypes[i]->getName() << endl;
-    //         return false;
-    //     }
-    // }
+    vector<TypeDecl*> argTypes;
+    if( !right->gatherArgs( tm, argTypes ) ){
+        cout << "Error: unrecognized symbol function call." << endl;
+    }
+    MethDecl* mptr = 0;
+    // Name node responsible for looking up methDecl
+    if( !left->tryGetType(tm, argTypes, mptr) ){
+        return false;
+    }
+    // Check for constructor usage
+    TypeDecl* t = 0;
+    if( tm->tryLookup( mptr->getName(), t ) ){
+        // If this succeeds, the function name is a type name and must be
+        // a constructor
+        cout << "Error: constructor '" << mptr->getName() << "' used as a "
+        << "function." << endl;
+        return false;
+    }
     return true;
 }
 
@@ -1804,14 +1838,19 @@ void MethodCallNode::print(){
 SumNode::SumNode( Node* l, Node* r ): Node( l, r ){}
 
 bool SumNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
-    }
-    else{
-        return false;
-    }
+    result = tm->getIntType();
+    return true;
  }
+
+bool SumNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
+    }
+    return false;
+}
 
 void SumNode::print(){
     cout << "<expr> -> <expr> + <expr>" << endl;
@@ -1824,13 +1863,18 @@ void SumNode::print(){
 MinusNode::MinusNode( Node* l, Node* r ): Node( l, r ){}
 
 bool MinusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool MinusNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 void MinusNode::print(){
@@ -1844,14 +1888,20 @@ void MinusNode::print(){
 ORNode::ORNode( Node* l, Node* r ): Node( l, r ){}
 
 bool ORNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
-    }
-    else{
-        return false;
-    }
+    result = tm->getIntType();
+    return true;
 }
+
+bool ORNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
+    }
+    return false;
+}
+
 
 void ORNode::print(){
     cout << "<expr>-> <expr> || <expr>" << endl;
@@ -1864,14 +1914,20 @@ void ORNode::print(){
 EqNode::EqNode( Node* l, Node* r ): Node( l, r ){}
 
 bool EqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool EqNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
- }
+    return false;
+}
+
 
 void EqNode::print(){
     cout << "<expr> -> <expr> == <expr>" << endl;
@@ -1884,14 +1940,20 @@ void EqNode::print(){
 NeqNode::NeqNode( Node* l, Node* r ): Node( l, r ){}
 
 bool NeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool NeqNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
- }
+    return false;
+}
+
 
 void NeqNode::print(){
     cout << "<expr> -> <expr> != <expr>" << endl;
@@ -1904,14 +1966,19 @@ void NeqNode::print(){
 LeqNode::LeqNode( Node* l, Node* r ): Node( l, r ){}
 
 bool LeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool LeqNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
- }
+    return false;
+}
 
 void LeqNode::print(){
     cout << "<expr> -> <expr> <= <expr>" << endl;
@@ -1924,14 +1991,20 @@ void LeqNode::print(){
 GeqNode::GeqNode( Node* l, Node* r ): Node( l, r ){}
 
 bool GeqNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
-    }
-    else{
-        return false;
-    }
+    result = tm->getIntType();
+    return true;
 }
+
+bool GeqNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
+    }
+    return false;
+}
+
 
 void GeqNode::print(){
     cout << "<expr> -> <expr> >= <expr>" << endl;
@@ -1944,13 +2017,18 @@ void GeqNode::print(){
 LessNode::LessNode( Node* l, Node* r ): Node( l, r ){}
 
 bool LessNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool LessNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 void LessNode::print(){
@@ -1964,13 +2042,18 @@ void LessNode::print(){
 GreaterNode::GreaterNode( Node* l, Node* r ): Node( l, r ){}
 
 bool GreaterNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool GreaterNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 void GreaterNode::print(){
@@ -1985,14 +2068,19 @@ void GreaterNode::print(){
 TimesNode::TimesNode( Node* l, Node* r ): Node( l, r ){}
 
 bool TimesNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool TimesNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
- }
+    return false;
+}
 
 void TimesNode::print(){
     cout << "<expr> -> <expr> * <expr>" << endl;
@@ -2005,13 +2093,18 @@ void TimesNode::print(){
 DivNode::DivNode( Node* l, Node* r ): Node( l, r ){}
 
 bool DivNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool DivNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 void DivNode::print(){
@@ -2025,14 +2118,19 @@ void DivNode::print(){
 ModNode::ModNode( Node* l, Node* r ): Node( l, r ){}
 
 bool ModNode::tryGetType( TableManager* tm, TypeDecl*& result ){
-    if(left && right){
-        result = tm->getIntType();
-        return true;
-    }
-    else{
-        return false;
-    }
+    result = tm->getIntType();
+    return true;
  }
+
+bool ModNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
+    }
+    return false;
+}
 
 void ModNode::print(){
     cout << "<expr> -> <expr> % <expr>" << endl;
@@ -2045,14 +2143,19 @@ void ModNode::print(){
 ANDNode::ANDNode( Node* l, Node* r ): Node( l, r ){}
 
 bool ANDNode::tryGetType( TableManager* tm, TypeDecl*& result ){ 
-    if(left && right){
-        result = tm->getIntType();
-        return true;
+    result = tm->getIntType();
+    return true;
+}
+
+bool ANDNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    TypeDecl* r = 0;
+    if( ( left && left->tryGetType( tm, l ) ) && 
+    ( right && right->tryGetType( tm, r ) ) ){
+        return l == r && l == tm->getIntType();
     }
-    else{
-        return false;
-    }
- }
+    return false;
+}
 
 void ANDNode::print(){
     cout << "<expr> -> <expr> && <expr>" << endl;
@@ -2072,6 +2175,15 @@ bool UMinusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     return false; 
 }
 
+bool UMinusNode::typeCheck( TableManager* tm ){
+    TypeDecl* r = 0;
+    if( ( right && right->tryGetType( tm, r ) ) ){
+        return r == tm->getIntType();
+    }
+    return false;
+}
+
+
 void UMinusNode::print(){
     cout << "<expr> -> -<expr>" << endl;
     if(right){ right->print(); }
@@ -2085,6 +2197,14 @@ bool UPlusNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     if( right && right->tryGetType(tm, result) ){
         return true;
     } 
+    return false;
+}
+
+bool UPlusNode::typeCheck( TableManager* tm ){
+    TypeDecl* r = 0;
+    if( ( right && right->tryGetType( tm, r ) ) ){
+        return r == tm->getIntType();
+    }
     return false;
 }
 
@@ -2102,7 +2222,15 @@ bool UExclNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         return true;
     }
     return false;
- }
+}
+
+bool UExclNode::typeCheck( TableManager* tm ){
+    TypeDecl* r = 0;
+    if( ( right && right->tryGetType( tm, r ) ) ){
+        return r == tm->getIntType();
+    }
+    return false;
+}
 
 void UExclNode::print(){
     cout << "<expr> -> !<expr>" << endl;
@@ -2116,6 +2244,14 @@ ParenNode::ParenNode( Node* l ): Node( l, 0 ){}
 bool ParenNode::tryGetType( TableManager* tm, TypeDecl*& result ){
     if( left && left->tryGetType(tm, result) ){
         return true;
+    }
+    return false;
+}
+
+bool ParenNode::typeCheck( TableManager* tm ){
+    TypeDecl* l = 0;
+    if( ( left && left->tryGetType( tm, l ) ) ){
+        return l == tm->getIntType();
     }
     return false;
 }
@@ -2134,12 +2270,20 @@ bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl*& result ){
     string name;
     if( left && left->getID(name) && tm->tryLookup(name, result) ){
         return true;
-
     }
     else{
-        cout << "Error: Cannot resolve new expression" << endl;
+        cout << "Error: Cannot resolve type new expression" << endl;
         return false;
     }
+}
+
+bool NewIdArgsNode::typeCheck( TableManager* tm ){
+    string name;
+    vector<TypeDecl*> args;
+    if( left && left->getID(name) && left->gatherArgs( tm, args ) ){
+        //return tm->verifyConstructor( name, args );
+    }
+    return false;
 }
 
 void NewIdArgsNode::print(){
@@ -2170,6 +2314,16 @@ bool NewIdNode::tryGetType( TableManager* tm , TypeDecl*& result ){
         cout << "Error: Cannot resolve new expression" << endl;
         return false;
     }
+}
+
+
+bool NewIdNode::typeCheck( TableManager* tm ){
+    string name;
+    vector<TypeDecl*> args;
+    if( left && left->getID(name) ){
+        //return tm->verifyConstructor( name, args );
+    }
+    return false;
 }
 
 void NewIdNode::print(){
@@ -2203,6 +2357,10 @@ bool NewSimpleNode::tryGetType( TableManager* tm, TypeDecl*& result ){
         cout << "Error: Cannot resolve new expression" << endl;
         return false;
     }
+}
+
+bool NewSimpleNode::typeCheck( TableManager* tm ){
+    return true;
 }
 
 void NewSimpleNode::print(){

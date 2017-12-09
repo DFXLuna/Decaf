@@ -1,17 +1,10 @@
 from spec:
-    relational expr type check
+    tm->verifyConstructor()
     array new stuff
-    print statement typechcking
-    constructor method calling not
 
 
 
 -More verbose errors
-
-- There's a strange error where an assignment to an element in an array 
-fails if the statement is the first statement in a block. so
-"IntArray[1] = 1;" 
-only works if it's not the first statement in a block.
 
 - fix nameexpr as first statement in block
 

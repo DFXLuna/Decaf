@@ -1,17 +1,14 @@
 // comment
 class id {
     // comment
-    abc( type id, int abc, int[][][] abc ){
-        int a;
+    id( id a, int b, int[][][] c ){
+        int d;
         // comment
-        type b;
-        int[][] a;
-        type[][] b;
+        id e;
+        int[][] f;
+        id[][] g;
     }
+    void main(){}
     // comment
 }//comment
 //comment
-class id {
-    //comment
-}
-class id {}

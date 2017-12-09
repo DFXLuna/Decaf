@@ -4,16 +4,19 @@ class type {
         type b;
         int[][] c;
         type[][] d;
+        return b;
     }
+    void main(){}
 }
 class abc {
     abc a;
     abc(){}
-    abc id(int a, type b, int[] a, type b){
-        int a;
-        type b;
-        int[] c;
-        type[] d;
+    abc id(int b, type c, int[] d, type e){
+        int f;
+        abc g;
+        int[] h;
+        type[] i;
+        return g;
     }
 }
 class def {

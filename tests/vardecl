@@ -16,4 +16,5 @@ class ghi{
     int b;
     abc c;
     def d;
+    void main(){}
 }

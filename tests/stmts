@@ -4,7 +4,7 @@ class id {
     id(){
         int a;
         a = 1 + 2;
-        print(arg1, 2);
+        print(a, 2);
         if( a ) 
             if( b )
                 return b1;
@@ -21,4 +21,5 @@ class id {
         return;
         }
     }
+    void main(){}
 }

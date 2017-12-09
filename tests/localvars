@@ -5,6 +5,7 @@ class id {
         int[][] g;
         id[][] h;
     }
+    int main(){ return 1; }
 }
 
 class ab {

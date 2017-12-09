@@ -1,10 +1,17 @@
 class id {
     id(){}
+    void main(){}
 }
 
 class id2{
-    void ab(int[][] a, id[] a, id2 b){}
-    int cd(int[][] a, id[] a, id2 b){}
-    id ef(){}
-    id2 gh(int a, id[] a, id2 b){}
+    void ab(int[][] a, id[] b, id2 c){}
+    int cd(int[][] d, id[] e, id2 f){
+        return 1;
+    }
+    id ef(id g){
+        return g;
+    }
+    id2 gh(int h, id[] i, id2 j){
+        return c;
+    }
 }

@@ -1,4 +1,5 @@
 class abc{
+    abc(){}
     void a(){
         int b;
         int[] c;
@@ -16,4 +17,5 @@ class abc{
         f = new abc[];
         g = new abc[][][];
     }
+    void main(){}
 }

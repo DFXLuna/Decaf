@@ -2,4 +2,6 @@ class id {
     id( int a, int[] b, type a, type[] b){}
 }
 
-class type{}
+class type{
+    void main(){}
+}

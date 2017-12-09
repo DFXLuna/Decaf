@@ -6,4 +6,5 @@ class abc{
         IntA = IntArray[1];
         IntArray = IntDArray[1];
     }
+    void main(){}
 }

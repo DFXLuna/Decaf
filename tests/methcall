@@ -3,6 +3,7 @@ class m{
     m b;
     int main(){
         a = getI();
+        return 1;
     }
     int getI(){
         return 1;

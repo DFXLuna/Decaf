@@ -446,6 +446,7 @@ class ExprNameNode : public Node {
 public:
     ExprNameNode( Node* name );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -453,6 +454,7 @@ class NumNode : public Node {
 public:
     NumNode( int );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 private:
     int val;
@@ -462,6 +464,7 @@ class NullNode : public Node {
 public:
     NullNode();
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -469,6 +472,7 @@ class ReadNode : public Node {
 public:
     ReadNode();
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -476,6 +480,7 @@ class NewExprNode : public Node {
 public:
     NewExprNode( Node* newexpr = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -483,6 +488,7 @@ class MethodCallNode : public Node {
 public:
     MethodCallNode( Node* name = 0, Node* arglist = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -491,6 +497,7 @@ class MinusNode : public Node {
 public:
     MinusNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -498,6 +505,7 @@ class SumNode : public Node {
 public:
     SumNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -505,6 +513,7 @@ class ORNode : public Node {
 public:
     ORNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -515,6 +524,7 @@ class EqNode : public Node {
 public:
     EqNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -522,6 +532,7 @@ class NeqNode : public Node {
 public:
     NeqNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -529,6 +540,7 @@ class LeqNode : public Node {
 public:
     LeqNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -536,6 +548,7 @@ class GeqNode : public Node {
 public:
     GeqNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -543,6 +556,7 @@ class LessNode : public Node {
 public:
     LessNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -550,6 +564,7 @@ class GreaterNode : public Node {
 public:
     GreaterNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 /////////////////////////////////////////
@@ -559,6 +574,7 @@ class TimesNode : public Node {
 public:
     TimesNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -566,6 +582,7 @@ class DivNode : public Node {
 public:
     DivNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -573,6 +590,7 @@ class ModNode : public Node {
 public:
     ModNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -580,6 +598,7 @@ class ANDNode : public Node {
 public:
     ANDNode( Node* l = 0, Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 /////////////////////////////////////////
@@ -590,6 +609,7 @@ class UMinusNode : public Node {
 public:
     UMinusNode( Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -597,6 +617,7 @@ class UPlusNode : public Node {
 public:
     UPlusNode( Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -604,6 +625,7 @@ class UExclNode : public Node {
 public:
     UExclNode( Node* r = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -614,6 +636,7 @@ class ParenNode : public Node {
 public:
     ParenNode( Node* l = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -624,6 +647,7 @@ class NewIdArgsNode : public Node {
 public:
     NewIdArgsNode( Node* type = 0, Node* arglist = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -631,6 +655,7 @@ class NewIdNode : public Node {
 public:
     NewIdNode( Node* type = 0, Node* bracket = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 };
 
@@ -638,6 +663,7 @@ class NewSimpleNode : public Node {
 public:
     NewSimpleNode ( Node* type = 0, Node* bracket = 0 );
     bool tryGetType( TableManager* tm, TypeDecl*& result );
+    bool typeCheck( TableManager* tm );
     void print();
 
 };
