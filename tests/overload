@@ -10,4 +10,8 @@ class m{
     }
     void foo( int a, m b){}
     void foo( m c, m d ){}
+    int b(){
+        return 1;
+    }
+    void b(){}
 }

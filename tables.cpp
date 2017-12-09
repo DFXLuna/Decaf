@@ -296,6 +296,29 @@ int TableManager::getMainCount(){
     return mainCount;
 }
 
+bool TableManager::verifyConstructor( string name, vector<TypeDecl*> args ){
+    TypeDecl* temp = 0;
+    if(!globalTypeTable->tryLookup( name, temp ) ){
+        // Not a constructor
+        return false;
+    }
+    // navigate to global table and then find child with name
+    Table* currScope = currTable;
+    while( currTable->getParent() != 0 ){
+        currTable = currTable->getParent();
+    }
+    if( !navigateTo( name ) ){
+        return false;
+    }
+    MethDecl* mTemp = 0;
+    if( !currTable->tryLookup( name, args, mTemp ) ){
+        currTable = currScope;
+        return false;
+    }
+    currTable = currScope; 
+    return true;
+}
+
 string TableManager::appendInt( string str, int i ){
     stringstream s;
     s << str << i;
@@ -407,6 +430,11 @@ TypeDecl* returnType, bool forwardDecl ){
     MethDecl toInsert( methName, argTypes, returnType, forwardDecl );
     map< string, vector<MethDecl> >::iterator it;
     if( ( it = methTable.find(methName) ) != methTable.end() ){
+        for( unsigned int i = 0; i < it->second.size(); i++ ){
+            if( it->second[i].getArgTypes() == argTypes ){
+                return false;
+            }
+        }
         it->second.push_back( toInsert );
     }
     else{

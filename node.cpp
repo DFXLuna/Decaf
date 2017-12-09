@@ -2280,8 +2280,8 @@ bool NewIdArgsNode::tryGetType( TableManager* tm , TypeDecl*& result ){
 bool NewIdArgsNode::typeCheck( TableManager* tm ){
     string name;
     vector<TypeDecl*> args;
-    if( left && left->getID(name) && left->gatherArgs( tm, args ) ){
-        //return tm->verifyConstructor( name, args );
+    if( left && left->getID(name) && right->gatherArgs( tm, args ) ){
+        return tm->verifyConstructor( name, args );
     }
     return false;
 }
@@ -2321,8 +2321,10 @@ bool NewIdNode::typeCheck( TableManager* tm ){
     string name;
     vector<TypeDecl*> args;
     if( left && left->getID(name) ){
-        //return tm->verifyConstructor( name, args );
+        return tm->verifyConstructor( name, args );
     }
+    cout << "Error: function used in new expression is" 
+    << "not a constructor" << endl;
     return false;
 }
 

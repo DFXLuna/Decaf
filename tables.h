@@ -72,6 +72,9 @@ public:
     void registerMain();
     int getMainCount();
 
+    // Verifying constructor arguments
+    bool verifyConstructor( string name, vector<TypeDecl*> args );
+
 private:
     string appendInt( string str, int i );
     bool createGlobalTypeTable();
