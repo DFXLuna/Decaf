@@ -12,8 +12,8 @@ then calling the necessary commands for type checking on the resulting tree.
 This file matches a set of instructions to a regex pattern.
 Typically, a value is sent to Bison, the semantic analyzer.
 
-* A finite state automata is generated using the formal grammar definitions found in program6.y . 
-The automata receives a stream of values from the parser and matches them to the productions.
+* A finite state automaton is generated using the formal grammar definitions found in program6.y . 
+The automaton receives a stream of values from the parser and matches them to the productions.
 After being matched, a set of instructions corresponding to the production will generate a node for the input's 
 syntax tree.
 
@@ -21,4 +21,4 @@ syntax tree.
 typechecker generated in the driver.
 
 * The typechecker is defined in tables.h and tables.cpp. It contains a tree structure of tables that keep track of valid types, method declarations 
-and type instantiations. It can be queried to determine the existance of types and well as retrieving definitions for methods and types.
+and type instantiations. It can be queried to determine the existence of types and well as retrieving definitions for methods and types.
